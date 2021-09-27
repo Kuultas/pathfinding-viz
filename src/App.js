@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import PathfindingVisualizer from "./components/PathfindingVisualizer";
+import { ConfigProvider } from "./contexts/ConfigContext";
 
 const PageContainer = styled.div`
   width: 100vw;
@@ -19,8 +20,9 @@ function App() {
   return (
     <PageContainer id="pageContainer">
       <PageWrapper id="pageWrapper">
-        <h1>grid</h1>
-        <PathfindingVisualizer></PathfindingVisualizer>
+        <ConfigProvider>
+          <PathfindingVisualizer></PathfindingVisualizer>
+        </ConfigProvider>
       </PageWrapper>
     </PageContainer>
   );
