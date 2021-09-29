@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect } from "react";
+import { useContext } from "react";
 import Grid from "./Grid";
 import OptionsPanel from "./OptionsPanel";
 import styled from "styled-components";
@@ -11,13 +11,13 @@ const PageTitle = styled.h1`
 `;
 
 const PathfindingVisualizer = () => {
-  const { config, setConfig } = useContext(ConfigContext);
+  const { config } = useContext(ConfigContext);
 
   return (
     <>
       <PageTitle>Pathfinding</PageTitle>
       <OptionsPanel></OptionsPanel>
-      <Grid rows={config.rows} cols={config.cols}></Grid>
+      <Grid rows={5} cols={10}></Grid>
     </>
   );
 };

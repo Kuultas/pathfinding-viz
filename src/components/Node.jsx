@@ -1,6 +1,5 @@
-import { useState, useContext, useEffect } from "react";
+import { useState } from "react";
 import styled, { css } from "styled-components";
-import { ConfigContext } from "../contexts/ConfigContext";
 
 const Cell = styled.div`
   width: 50px;
@@ -10,6 +9,7 @@ const Cell = styled.div`
   font-size: 10px;
   display: flex;
   cursor: pointer;
+  user-select: none;
 
   ${(props) =>
     props.selected &&
@@ -18,53 +18,28 @@ const Cell = styled.div`
     `}
 
   ${(props) =>
-    props.startNode &&
+    props.isStart &&
     css`
       background-color: #00a35f;
     `}
 
     ${(props) =>
-    props.endNode &&
+    props.isEnd &&
     css`
       background-color: #a32100;
+    `};
+
+  ${(props) =>
+    props.isWall &&
+    css`
+      background-color: pink;
     `}
 `;
 
-const Node = ({ coords }) => {
-  const [isTarget, setIsTarget] = useState(false);
-  const [isStart, setIsStart] = useState(false);
-  const [isEnd, setIsEnd] = useState(false);
-  const { config, setConfig } = useContext(ConfigContext);
-
-  useEffect(() => {
-    if (
-      coords[0] === config.startNode[0] &&
-      coords[1] === config.startNode[1]
-    ) {
-      setIsStart(true);
-    }
-
-    if (coords[0] === config.endNode[0] && coords[1] === config.endNode[1]) {
-      setIsEnd(true);
-    }
-  }, [coords, config.startNode, config.endNode]);
-
-  const handleClick = (e) => {
-    setIsTarget(!isTarget);
-    setConfig({
-      ...config,
-      currentNode: [coords[0], coords[1]],
-    });
-  };
-
+const Node = ({ x, y, isStart, isEnd, isWall }) => {
   return (
-    <Cell
-      onClick={handleClick}
-      selected={isTarget}
-      startNode={isStart}
-      endNode={isEnd}
-    >
-      {`${coords[0]},${coords[1]}`}
+    <Cell id={`cell-${x}-${y}`} isStart={isStart} isEnd={isEnd} isWall={isWall}>
+      {`${x},${y}`}
     </Cell>
   );
 };

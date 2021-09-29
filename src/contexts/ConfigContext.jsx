@@ -7,15 +7,7 @@ export const useConfig = () => {
 };
 
 export const ConfigProvider = ({ children }) => {
-  const [config, setConfig] = useState({
-    rows: 5,
-    cols: 5,
-    alg: "dijkstra",
-    startNode: [],
-    currentNode: [],
-    endNode: [],
-    wallNodes: [],
-  });
+  const [config, setConfig] = useState({});
 
   return (
     <ConfigContext.Provider value={{ config, setConfig }}>

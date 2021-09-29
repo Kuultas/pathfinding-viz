@@ -1,4 +1,3 @@
-import { jsxNamespacedName } from "@babel/types";
 import { useState, useContext } from "react";
 import styled from "styled-components";
 import { ConfigContext } from "../contexts/ConfigContext";
@@ -65,38 +64,6 @@ const Options = () => {
           max="35"
           placeholder="cols"
           onChange={(e) => setCols(e.target.value)}
-          required
-        ></GridInput>
-        <GridInput
-          type="number"
-          min="1"
-          max="35"
-          placeholder="x"
-          onChange={(e) => setXStart(e.target.value)}
-          required
-        ></GridInput>
-        <GridInput
-          type="number"
-          min="1"
-          max="35"
-          placeholder="y"
-          onChange={(e) => setYStart(e.target.value)}
-          required
-        ></GridInput>
-        <GridInput
-          type="number"
-          min="1"
-          max="35"
-          placeholder="x"
-          onChange={(e) => setXEnd(e.target.value)}
-          required
-        ></GridInput>
-        <GridInput
-          type="number"
-          min="1"
-          max="35"
-          placeholder="y"
-          onChange={(e) => setYEnd(e.target.value)}
           required
         ></GridInput>
         <GridButton type="submit">new grid</GridButton>
