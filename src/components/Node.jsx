@@ -38,7 +38,7 @@ const Cell = styled.div`
 
 const Node = ({ x, y, isStart, isEnd, isWall }) => {
   return (
-    <Cell id={`cell-${x}-${y}`} isStart={isStart} isEnd={isEnd} isWall={isWall}>
+    <Cell id={`${x}-${y}`} isStart={isStart} isEnd={isEnd} isWall={isWall}>
       {`${x},${y}`}
     </Cell>
   );

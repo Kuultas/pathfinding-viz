@@ -24,6 +24,12 @@ const Grid = ({ cols, rows }) => {
   const [currentShortest, setCurrentShortest] = useState([]);
   const [exploredPaths, setExploredPaths] = useState([]);
 
+  const getNodeById = (id) => {
+    const result = id.split("-");
+    result.map((node) => parseInt(node));
+    return result;
+  };
+
   const findNodeIndex = (arr, x, y) => {
     const index = arr.findIndex((i) => i.x == x && i.y == y);
     return index;
@@ -46,6 +52,7 @@ const Grid = ({ cols, rows }) => {
   };
 
   const toggleWall = (x, y) => {
+    console.log("toggle wall");
     const index = findNodeIndex(walls, x, y);
     const wall = { x: x, y: y };
     if (index === -1) {
@@ -54,6 +61,7 @@ const Grid = ({ cols, rows }) => {
       const tempWalls = [...walls.slice(0, index), ...walls.slice(index + 1)];
       setWalls(tempWalls);
     }
+    console.log(walls);
   };
 
   const handleMouseDown = (e) => {
@@ -61,18 +69,19 @@ const Grid = ({ cols, rows }) => {
     if (checkStart(hoverTarget.x, hoverTarget.y)) return;
     if (checkEnd(hoverTarget.x, hoverTarget.y)) return;
     toggleWall(hoverTarget.x, hoverTarget.y);
+    console.log(hoverTarget);
   };
 
   const handleMouseOver = (e) => {
-    if (e.target.id === "mainGrid") return;
-    const x = e.target.id[5];
-    const y = e.target.id[7];
-    setHoverTarget({ x, y });
+    const id = e.target.id;
+    if (id === "mainGrid") return;
+    const node = getNodeById(id);
+    setHoverTarget({ x: node[0], y: node[1] });
     if (!mouseIsPressed) return;
-    if (checkStart(x, y)) return;
-    if (checkEnd(x, y)) return;
-    const idx = findNodeIndex(walls, x, y);
-    toggleWall(x, y, idx);
+    if (checkStart(node[0], node[1])) return;
+    if (checkEnd(node[0], node[1])) return;
+    const idx = findNodeIndex(walls, node[0], node[1]);
+    toggleWall(node[0], node[1], idx);
   };
 
   const handleMouseUp = () => {

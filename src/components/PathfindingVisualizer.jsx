@@ -17,7 +17,7 @@ const PathfindingVisualizer = () => {
     <>
       <PageTitle>Pathfinding</PageTitle>
       <OptionsPanel></OptionsPanel>
-      <Grid rows={5} cols={10}></Grid>
+      <Grid rows={15} cols={35}></Grid>
     </>
   );
 };
