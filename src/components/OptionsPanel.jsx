@@ -29,10 +29,10 @@ const GridButton = styled.button`
 const Options = () => {
   const [rows, setRows] = useState(0);
   const [cols, setCols] = useState(0);
-  const [xStart, setXStart] = useState(0);
-  const [yStart, setYStart] = useState(0);
-  const [xEnd, setXEnd] = useState(0);
-  const [yEnd, setYEnd] = useState(0);
+  const [xStart] = useState(0);
+  const [yStart] = useState(0);
+  const [xEnd] = useState(0);
+  const [yEnd] = useState(0);
 
   const { config, setConfig } = useContext(ConfigContext);
 

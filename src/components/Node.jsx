@@ -1,9 +1,8 @@
-import { useState } from "react";
 import styled, { css } from "styled-components";
 
 const Cell = styled.div`
-  width: 50px;
-  height: 50px;
+  width: 35px;
+  height: 35px;
   background-color: #535353;
   border: 1px solid lightcoral;
   font-size: 10px;
@@ -36,10 +35,15 @@ const Cell = styled.div`
     `}
 `;
 
-const Node = ({ x, y, isStart, isEnd, isWall }) => {
+const Node = ({ col, row, isSource, isTarget, isWall }) => {
   return (
-    <Cell id={`${x}-${y}`} isStart={isStart} isEnd={isEnd} isWall={isWall}>
-      {`${x},${y}`}
+    <Cell
+      id={`${col}-${row}`}
+      isStart={isSource}
+      isEnd={isTarget}
+      isWall={isWall}
+    >
+      {`${col},${row}`}
     </Cell>
   );
 };

@@ -1,137 +1,179 @@
-import { useState, useEffect, useContext } from "react";
-import styled, { css } from "styled-components";
-import { ConfigContext } from "../contexts/ConfigContext";
+import { useState, useEffect } from "react";
+import styled from "styled-components";
 import Node from "./Node";
 
 const StyledGrid = styled.div`
   display: grid;
-  grid-template-rows: repeat(${(props) => props.rows}, 50px);
-  grid-template-columns: repeat(${(props) => props.cols}, 50px);
-  column-gap: 5px;
-  row-gap: 5px;
+  grid-template-rows: repeat(${(props) => props.rows}, 35px);
+  grid-template-columns: repeat(${(props) => props.cols}, 35px);
+  column-gap: 1px;
+  row-gap: 1px;
 `;
 
 const Grid = ({ cols, rows }) => {
+  // grid state
   const [nodes, setNodes] = useState([]);
-  const [nodeArr, setNodeArr] = useState([]);
-  const [walls, setWalls] = useState([]);
+  const [sourceNode, setSourceNode] = useState({ col: 0, row: 0 });
+  const [targetNode, setTargetNode] = useState({ col: 4, row: 4 });
+
+  // activity state
+  const [currentMouseTarget, setCurrentMouseTarget] = useState({
+    row: 0,
+    col: 0,
+  });
   const [mouseIsPressed, setMouseIsPressed] = useState(false);
-  const [startNode, setStartNode] = useState({ x: 0, y: 2 });
-  const [targetNode, setTargetNode] = useState({ x: 9, y: 2 });
-  const [hoverTarget, setHoverTarget] = useState({});
+  const [sourceIsMoving, setSourceIsMoving] = useState(false);
+  const [targetIsMoving, setTargetIsMoving] = useState(false);
 
-  // alg stuff
-  const [currentShortest, setCurrentShortest] = useState([]);
-  const [exploredPaths, setExploredPaths] = useState([]);
-
-  const getNodeById = (id) => {
-    const result = id.split("-");
-    result.map((node) => parseInt(node));
-    return result;
-  };
-
-  const findNodeIndex = (arr, x, y) => {
-    const index = arr.findIndex((i) => i.x == x && i.y == y);
-    return index;
-  };
-
-  const checkStart = (x, y) => {
-    return x == startNode.x && y == startNode.y;
-  };
-
-  const checkEnd = (x, y) => {
-    return x == targetNode.x && y == targetNode.y;
-  };
-
-  const checkWall = (x, y) => {
-    const coords = { x: x, y: y };
-    const index = walls.findIndex(
-      (wall) => wall.x == coords.x && wall.y == coords.y
-    );
-    return index !== -1;
-  };
-
-  const toggleWall = (x, y) => {
-    console.log("toggle wall");
-    const index = findNodeIndex(walls, x, y);
-    const wall = { x: x, y: y };
-    if (index === -1) {
-      setWalls([...walls, wall]);
-    } else {
-      const tempWalls = [...walls.slice(0, index), ...walls.slice(index + 1)];
-      setWalls(tempWalls);
+  const currentIsSource = () => {
+    if (
+      currentMouseTarget.col === sourceNode.col &&
+      currentMouseTarget.row === sourceNode.row
+    ) {
+      return true;
     }
-    console.log(walls);
+  };
+
+  const currentIsTarget = () => {
+    if (
+      currentMouseTarget.col === targetNode.col &&
+      currentMouseTarget.row === targetNode.row
+    ) {
+      return true;
+    }
+  };
+
+  const toggleWall = (col, row) => {};
+
+  const handleClick = (e) => {
+    if (currentIsSource() || currentIsTarget()) return;
+    toggleWall(currentMouseTarget.col, currentMouseTarget.row);
   };
 
   const handleMouseDown = (e) => {
+    if (currentIsSource()) {
+      setSourceIsMoving(true);
+      return;
+    } else if (currentIsTarget()) {
+      setTargetIsMoving(true);
+      return;
+    }
+
     setMouseIsPressed(true);
-    if (checkStart(hoverTarget.x, hoverTarget.y)) return;
-    if (checkEnd(hoverTarget.x, hoverTarget.y)) return;
-    toggleWall(hoverTarget.x, hoverTarget.y);
-    console.log(hoverTarget);
   };
 
   const handleMouseOver = (e) => {
-    const id = e.target.id;
-    if (id === "mainGrid") return;
-    const node = getNodeById(id);
-    setHoverTarget({ x: node[0], y: node[1] });
+    if (e.target.id === "mainGrid") return;
+
+    const result = e.target.id.split("-");
+    result.map((node) => parseInt(node));
+    setCurrentMouseTarget({
+      col: parseInt(result[0]),
+      row: parseInt(result[1]),
+    });
+
     if (!mouseIsPressed) return;
-    if (checkStart(node[0], node[1])) return;
-    if (checkEnd(node[0], node[1])) return;
-    const idx = findNodeIndex(walls, node[0], node[1]);
-    toggleWall(node[0], node[1], idx);
+
+    if (currentIsSource() || currentIsTarget()) return;
+
+    if (sourceIsMoving || targetIsMoving) return;
+
+    toggleWall(currentMouseTarget.col, currentMouseTarget.row);
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e) => {
     setMouseIsPressed(false);
+
+    if (sourceIsMoving) {
+      setSourceNode({
+        col: currentMouseTarget.col,
+        row: currentMouseTarget.row,
+      });
+
+      setSourceIsMoving(false);
+    }
+
+    if (targetIsMoving) {
+      setTargetNode({
+        col: currentMouseTarget.col,
+        row: currentMouseTarget.row,
+      });
+
+      setTargetIsMoving(false);
+    }
+
+    if (currentIsSource() || currentIsTarget()) return;
   };
 
-  const handleMouseLeave = () => {
+  const handleMouseLeave = (e) => {
     setMouseIsPressed(false);
   };
 
   useEffect(() => {
-    const loadCells = () => {
-      const tempNodeArr = [];
-      const gridCells = [];
-      for (let y = 0; y < rows; y++) {
-        for (let x = 0; x < cols; x++) {
-          let startCheck = checkStart(x, y);
-          let endCheck = checkEnd(x, y);
-          let wallCheck = checkWall(x, y);
-          tempNodeArr.push([x, y]);
-          gridCells.push(
+    const createNode = (col, row) => {
+      return {
+        col,
+        row,
+        isSource: row === sourceNode.row && col === sourceNode.col,
+        isTarget: row === targetNode.row && col === targetNode.col,
+        distance:
+          row === sourceNode.row && col === sourceNode.col ? 0 : Infinity,
+        isWall: null,
+        isVisited: false,
+      };
+    };
+
+    const setupGrid = () => {
+      const nodeCells = [];
+      for (let row = 0; row < rows; row++) {
+        let currentRow = [];
+        for (let col = 0; col < cols; col++) {
+          let node = createNode(col, row);
+          node.element = (
             <Node
-              key={`node-${x}-${y}`}
-              x={x}
-              y={y}
-              isStart={startCheck}
-              isEnd={endCheck}
-              isWall={wallCheck}
+              row={row}
+              col={col}
+              key={`node-${col}-${row}`}
+              isSource={node.isSource}
+              isTarget={node.isTarget}
+              isWall={node.isWall}
             ></Node>
           );
+          currentRow.push(node);
         }
+        nodeCells.push(currentRow);
       }
-      setNodes(gridCells);
-      setNodeArr(tempNodeArr);
+
+      setNodes(nodeCells);
     };
-    loadCells();
-  }, [cols, rows, walls]);
+    setupGrid();
+  }, [
+    cols,
+    rows,
+    sourceNode.row,
+    sourceNode.col,
+    targetNode.row,
+    targetNode.col,
+  ]);
 
   return (
-    <StyledGrid
-      id="mainGrid"
-      rows={rows}
-      cols={cols}
-      onMouseDown={handleMouseDown}
-      onMouseOver={handleMouseOver}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseLeave}
-    >
-      {nodes}
-    </StyledGrid>
+    <>
+      <button onClick={() => console.log(nodes)}>click</button>
+      <StyledGrid
+        id="mainGrid"
+        rows={rows}
+        cols={cols}
+        onClick={handleClick}
+        onMouseDown={handleMouseDown}
+        onMouseOver={handleMouseOver}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+      >
+        {nodes.map((row, rowIdx) => {
+          return <div key={rowIdx}>{row.map((node) => node.element)}</div>;
+        })}
+      </StyledGrid>
+    </>
   );
 };
 

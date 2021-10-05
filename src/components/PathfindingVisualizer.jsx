@@ -1,8 +1,8 @@
-import { useContext } from "react";
+// import { useContext } from "react";
 import Grid from "./Grid";
 import OptionsPanel from "./OptionsPanel";
 import styled from "styled-components";
-import { ConfigContext } from "../contexts/ConfigContext";
+// import { ConfigContext } from "../contexts/ConfigContext";
 
 const PageTitle = styled.h1`
   width: 75%;
@@ -11,13 +11,13 @@ const PageTitle = styled.h1`
 `;
 
 const PathfindingVisualizer = () => {
-  const { config } = useContext(ConfigContext);
+  // const { config } = useContext(ConfigContext);
 
   return (
     <>
       <PageTitle>Pathfinding</PageTitle>
       <OptionsPanel></OptionsPanel>
-      <Grid rows={15} cols={35}></Grid>
+      <Grid rows={9} cols={9}></Grid>
     </>
   );
 };
