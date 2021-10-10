@@ -41,6 +41,8 @@ const Grid = ({ cols, rows }) => {
   const toggleWall = (col, row) => {
     const wall = { col: col, row: row };
     const wallIndex = getWallIndex(col, row);
+    console.log(wallIndex);
+
     if (wallIndex < 0) {
       setWalls([...walls, wall]);
       console.log(walls);
@@ -106,7 +108,7 @@ const Grid = ({ cols, rows }) => {
         col: currentMouseTarget.col,
         row: currentMouseTarget.row,
       });
-      if (getWallIndex(currentMouseTarget.col, currentMouseTarget.row) > 0) {
+      if (getWallIndex(currentMouseTarget.col, currentMouseTarget.row) >= 0) {
         toggleWall(currentMouseTarget.col, currentMouseTarget.row);
       }
 
@@ -118,7 +120,7 @@ const Grid = ({ cols, rows }) => {
         col: currentMouseTarget.col,
         row: currentMouseTarget.row,
       });
-      if (getWallIndex(currentMouseTarget.col, currentMouseTarget.row) > 0) {
+      if (getWallIndex(currentMouseTarget.col, currentMouseTarget.row) >= 0) {
         toggleWall(currentMouseTarget.col, currentMouseTarget.row);
       }
 
@@ -143,7 +145,7 @@ const Grid = ({ cols, rows }) => {
       isSource: isSource(col, row),
       isTarget: isTarget(col, row),
       distance: row === sourceNode.row && col === sourceNode.col ? 0 : Infinity,
-      isWall: getWallIndex(col, row) > 0,
+      isWall: getWallIndex(col, row) >= 0,
       isVisited: false,
     };
   };
