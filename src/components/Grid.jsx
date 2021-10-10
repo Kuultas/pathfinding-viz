@@ -13,7 +13,8 @@ const StyledGrid = styled.div`
 const Grid = ({ cols, rows }) => {
   // grid state
   const [nodes, setNodes] = useState([]);
-  const [sourceNode, setSourceNode] = useState({ col: 0, row: 0 });
+  const [walls, setWalls] = useState([]);
+  const [sourceNode, setSourceNode] = useState({ col: 1, row: 1 });
   const [targetNode, setTargetNode] = useState({ col: 4, row: 4 });
 
   // activity state
@@ -25,36 +26,48 @@ const Grid = ({ cols, rows }) => {
   const [sourceIsMoving, setSourceIsMoving] = useState(false);
   const [targetIsMoving, setTargetIsMoving] = useState(false);
 
-  const currentIsSource = () => {
-    if (
-      currentMouseTarget.col === sourceNode.col &&
-      currentMouseTarget.row === sourceNode.row
-    ) {
-      return true;
-    }
+  const isSource = (col, row) => {
+    return col === sourceNode.col && row === sourceNode.row;
   };
 
-  const currentIsTarget = () => {
-    if (
-      currentMouseTarget.col === targetNode.col &&
-      currentMouseTarget.row === targetNode.row
-    ) {
-      return true;
-    }
+  const isTarget = (col, row) => {
+    return col === targetNode.col && row === targetNode.row;
   };
 
-  const toggleWall = (col, row) => {};
+  const getWallIndex = (col, row) => {
+    return walls.findIndex((item) => item.col === col && item.row === row);
+  };
+
+  const toggleWall = (col, row) => {
+    const wall = { col: col, row: row };
+    const wallIndex = getWallIndex(col, row);
+    if (wallIndex < 0) {
+      setWalls([...walls, wall]);
+      console.log(walls);
+    } else {
+      const tempWalls = [
+        ...walls.slice(0, wallIndex),
+        ...walls.slice(wallIndex + 1),
+      ];
+      setWalls(tempWalls);
+      console.log(walls);
+    }
+  };
 
   const handleClick = (e) => {
-    if (currentIsSource() || currentIsTarget()) return;
+    if (
+      isSource(currentMouseTarget.col, currentMouseTarget.row) ||
+      isTarget(currentMouseTarget.col, currentMouseTarget.row)
+    )
+      return;
     toggleWall(currentMouseTarget.col, currentMouseTarget.row);
   };
 
   const handleMouseDown = (e) => {
-    if (currentIsSource()) {
+    if (isSource(currentMouseTarget.col, currentMouseTarget.row)) {
       setSourceIsMoving(true);
       return;
-    } else if (currentIsTarget()) {
+    } else if (isTarget(currentMouseTarget.col, currentMouseTarget.row)) {
       setTargetIsMoving(true);
       return;
     }
@@ -74,7 +87,11 @@ const Grid = ({ cols, rows }) => {
 
     if (!mouseIsPressed) return;
 
-    if (currentIsSource() || currentIsTarget()) return;
+    if (
+      isSource(currentMouseTarget.col, currentMouseTarget.row) ||
+      isTarget(currentMouseTarget.col, currentMouseTarget.row)
+    )
+      return;
 
     if (sourceIsMoving || targetIsMoving) return;
 
@@ -89,6 +106,9 @@ const Grid = ({ cols, rows }) => {
         col: currentMouseTarget.col,
         row: currentMouseTarget.row,
       });
+      if (getWallIndex(currentMouseTarget.col, currentMouseTarget.row) > 0) {
+        toggleWall(currentMouseTarget.col, currentMouseTarget.row);
+      }
 
       setSourceIsMoving(false);
     }
@@ -98,31 +118,37 @@ const Grid = ({ cols, rows }) => {
         col: currentMouseTarget.col,
         row: currentMouseTarget.row,
       });
+      if (getWallIndex(currentMouseTarget.col, currentMouseTarget.row) > 0) {
+        toggleWall(currentMouseTarget.col, currentMouseTarget.row);
+      }
 
       setTargetIsMoving(false);
     }
 
-    if (currentIsSource() || currentIsTarget()) return;
+    if (
+      isSource(currentMouseTarget.col, currentMouseTarget.row) ||
+      isTarget(currentMouseTarget.col, currentMouseTarget.row)
+    )
+      return;
   };
 
   const handleMouseLeave = (e) => {
     setMouseIsPressed(false);
   };
 
-  useEffect(() => {
-    const createNode = (col, row) => {
-      return {
-        col,
-        row,
-        isSource: row === sourceNode.row && col === sourceNode.col,
-        isTarget: row === targetNode.row && col === targetNode.col,
-        distance:
-          row === sourceNode.row && col === sourceNode.col ? 0 : Infinity,
-        isWall: null,
-        isVisited: false,
-      };
+  const createNode = (col, row) => {
+    return {
+      col,
+      row,
+      isSource: isSource(col, row),
+      isTarget: isTarget(col, row),
+      distance: row === sourceNode.row && col === sourceNode.col ? 0 : Infinity,
+      isWall: getWallIndex(col, row) > 0,
+      isVisited: false,
     };
+  };
 
+  useEffect(() => {
     const setupGrid = () => {
       const nodeCells = [];
       for (let row = 0; row < rows; row++) {
@@ -150,6 +176,7 @@ const Grid = ({ cols, rows }) => {
   }, [
     cols,
     rows,
+    walls,
     sourceNode.row,
     sourceNode.col,
     targetNode.row,
@@ -169,8 +196,8 @@ const Grid = ({ cols, rows }) => {
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseLeave}
       >
-        {nodes.map((row, rowIdx) => {
-          return <div key={rowIdx}>{row.map((node) => node.element)}</div>;
+        {nodes.map((row) => {
+          return row.map((node) => node.element);
         })}
       </StyledGrid>
     </>
