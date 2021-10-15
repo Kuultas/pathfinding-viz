@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import Node from "./Node";
+import { dijkstra, getPath } from "../algorithms/dijkstra";
 
 const StyledGrid = styled.div`
   display: grid;
@@ -10,12 +11,27 @@ const StyledGrid = styled.div`
   row-gap: 1px;
 `;
 
+const AnimateButton = styled.button`
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 2px solid #52b788;
+  cursor: pointer;
+`;
+
 const Grid = ({ cols, rows }) => {
   // grid state
   const [nodes, setNodes] = useState([]);
+  const [sourceNode, setSourceNode] = useState({ col: 0, row: 0 });
+  const [targetNode, setTargetNode] = useState({ col: 2, row: 2 });
+
+  // animation state
+  const [hasAnimated, setHasAnimated] = useState(false);
+
+  // algorithm state
   const [walls, setWalls] = useState([]);
-  const [sourceNode, setSourceNode] = useState({ col: 1, row: 1 });
-  const [targetNode, setTargetNode] = useState({ col: 4, row: 4 });
+  const [visited, setVisited] = useState([]);
+  const [path, setPath] = useState([]);
 
   // activity state
   const [currentMouseTarget, setCurrentMouseTarget] = useState({
@@ -34,44 +50,37 @@ const Grid = ({ cols, rows }) => {
     return col === targetNode.col && row === targetNode.row;
   };
 
-  const getWallIndex = (col, row) => {
-    return walls.findIndex((item) => item.col === col && item.row === row);
+  const getNodeIndex = (col, row, nodes) => {
+    return nodes.findIndex((item) => item.col === col && item.row === row);
   };
 
   const toggleWall = (col, row) => {
     const wall = { col: col, row: row };
-    const wallIndex = getWallIndex(col, row);
-    console.log(wallIndex);
+    const wallIndex = getNodeIndex(col, row, walls);
+
+    if (isSource(col, row) || isTarget(col, row)) return;
 
     if (wallIndex < 0) {
       setWalls([...walls, wall]);
-      console.log(walls);
     } else {
       const tempWalls = [
         ...walls.slice(0, wallIndex),
         ...walls.slice(wallIndex + 1),
       ];
       setWalls(tempWalls);
-      console.log(walls);
     }
   };
 
-  const handleClick = (e) => {
-    if (
-      isSource(currentMouseTarget.col, currentMouseTarget.row) ||
-      isTarget(currentMouseTarget.col, currentMouseTarget.row)
-    )
-      return;
+  const handleClick = () => {
+    if (hasAnimated) visualizeDijkstra(nodes);
     toggleWall(currentMouseTarget.col, currentMouseTarget.row);
   };
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = () => {
     if (isSource(currentMouseTarget.col, currentMouseTarget.row)) {
       setSourceIsMoving(true);
-      return;
     } else if (isTarget(currentMouseTarget.col, currentMouseTarget.row)) {
       setTargetIsMoving(true);
-      return;
     }
 
     setMouseIsPressed(true);
@@ -89,18 +98,12 @@ const Grid = ({ cols, rows }) => {
 
     if (!mouseIsPressed) return;
 
-    if (
-      isSource(currentMouseTarget.col, currentMouseTarget.row) ||
-      isTarget(currentMouseTarget.col, currentMouseTarget.row)
-    )
-      return;
-
     if (sourceIsMoving || targetIsMoving) return;
 
     toggleWall(currentMouseTarget.col, currentMouseTarget.row);
   };
 
-  const handleMouseUp = (e) => {
+  const handleMouseUp = () => {
     setMouseIsPressed(false);
 
     if (sourceIsMoving) {
@@ -108,7 +111,10 @@ const Grid = ({ cols, rows }) => {
         col: currentMouseTarget.col,
         row: currentMouseTarget.row,
       });
-      if (getWallIndex(currentMouseTarget.col, currentMouseTarget.row) >= 0) {
+
+      if (
+        getNodeIndex(currentMouseTarget.col, currentMouseTarget.row, walls) >= 0
+      ) {
         toggleWall(currentMouseTarget.col, currentMouseTarget.row);
       }
 
@@ -120,21 +126,18 @@ const Grid = ({ cols, rows }) => {
         col: currentMouseTarget.col,
         row: currentMouseTarget.row,
       });
-      if (getWallIndex(currentMouseTarget.col, currentMouseTarget.row) >= 0) {
+
+      if (
+        getNodeIndex(currentMouseTarget.col, currentMouseTarget.row, walls) >= 0
+      ) {
         toggleWall(currentMouseTarget.col, currentMouseTarget.row);
       }
 
       setTargetIsMoving(false);
     }
-
-    if (
-      isSource(currentMouseTarget.col, currentMouseTarget.row) ||
-      isTarget(currentMouseTarget.col, currentMouseTarget.row)
-    )
-      return;
   };
 
-  const handleMouseLeave = (e) => {
+  const handleMouseLeave = () => {
     setMouseIsPressed(false);
   };
 
@@ -144,10 +147,42 @@ const Grid = ({ cols, rows }) => {
       row,
       isSource: isSource(col, row),
       isTarget: isTarget(col, row),
-      distance: row === sourceNode.row && col === sourceNode.col ? 0 : Infinity,
-      isWall: getWallIndex(col, row) >= 0,
-      isVisited: false,
+      distance: isSource(col, row) ? 0 : Infinity,
+      isWall: getNodeIndex(col, row, walls) >= 0,
+      isVisited: getNodeIndex(col, row, visited) >= 0,
+      isPath: getNodeIndex(col, row, path) >= 0,
+      previousNode: null,
     };
+  };
+
+  const animateDijkstra = (grid) => {
+    const visitedNodes = dijkstra(grid);
+    const pathNodes = getPath(visitedNodes);
+
+    setVisited([]);
+    setPath([]);
+
+    for (let i = 0; i < visitedNodes.length; i++) {
+      setTimeout(() => {
+        setVisited([...visitedNodes.slice(0, i)]);
+      }, 100);
+    }
+
+    for (let i = 0; i < pathNodes.length; i++) {
+      setTimeout(() => {
+        setPath([...pathNodes.slice(0, i)]);
+      }, 100 * i);
+    }
+
+    setHasAnimated(true);
+  };
+
+  const visualizeDijkstra = (grid) => {
+    const visitedNodes = dijkstra(grid);
+    const pathNodes = getPath(visitedNodes);
+
+    setVisited(visitedNodes);
+    setPath(pathNodes);
   };
 
   useEffect(() => {
@@ -165,6 +200,8 @@ const Grid = ({ cols, rows }) => {
               isSource={node.isSource}
               isTarget={node.isTarget}
               isWall={node.isWall}
+              isPath={node.isPath}
+              isVisited={node.isVisited}
             ></Node>
           );
           currentRow.push(node);
@@ -175,19 +212,13 @@ const Grid = ({ cols, rows }) => {
       setNodes(nodeCells);
     };
     setupGrid();
-  }, [
-    cols,
-    rows,
-    walls,
-    sourceNode.row,
-    sourceNode.col,
-    targetNode.row,
-    targetNode.col,
-  ]);
+  }, [cols, rows, sourceNode, targetNode, walls, path, visited]);
 
   return (
     <>
-      <button onClick={() => console.log(nodes)}>click</button>
+      <AnimateButton onClick={() => animateDijkstra(nodes)}>
+        animate
+      </AnimateButton>
       <StyledGrid
         id="mainGrid"
         rows={rows}

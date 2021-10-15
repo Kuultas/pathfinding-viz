@@ -18,8 +18,8 @@ const PageWrapper = styled.div`
 
 function App() {
   return (
-    <PageContainer id="pageContainer">
-      <PageWrapper id="pageWrapper">
+    <PageContainer>
+      <PageWrapper>
         <ConfigProvider>
           <PathfindingVisualizer></PathfindingVisualizer>
         </ConfigProvider>
