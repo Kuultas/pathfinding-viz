@@ -1,0 +1,18 @@
+.grid-cell.isVisited {
+  background-color: #1b4332;
+}
+
+.grid-cell.isPath {
+  background-color: #d8f3dc;
+}
+.grid-cell.isSource {
+  background-color: #00ff88;
+}
+
+.grid-cell.isTarget {
+  background-color: #ff5100;
+}
+
+.grid-cell.isWall {
+  background-color: #081c15;
+}

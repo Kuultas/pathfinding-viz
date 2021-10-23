@@ -6,7 +6,6 @@ import styled from "styled-components";
 const OptionsPanel = styled.div`
   padding: 10px;
   display: flex;
-  /* background-color: #f0f8ff75; */
 `;
 
 const PageTitle = styled.h1`
@@ -18,7 +17,7 @@ const PageTitle = styled.h1`
 
 const GridForm = styled.form`
   padding: 25px;
-  /* background-color: #ffffff55; */
+
   display: flex;
   justify-content: center;
 
@@ -42,17 +41,9 @@ const GridButton = styled.button`
   cursor: pointer;
 `;
 
-const MiscButtonContainer = styled.div`
-  padding: 25px;
-  /* background-color: #ffffffa6; */
-  display: flex;
-  flex-basis: 100%;
-  flex: 1;
-`;
-
 const PathfindingVisualizer = () => {
-  const [cols, setCols] = useState(30);
-  const [rows, setRows] = useState(15);
+  const [cols, setCols] = useState(15);
+  const [rows, setRows] = useState(10);
   const [config, setConfig] = useState({ cols, rows });
   const [algorithm, setAlgorithm] = useState("dijkstra");
   const [wallTemplate, setWallTemplate] = useState("recursiveMaze");
@@ -85,7 +76,6 @@ const PathfindingVisualizer = () => {
           ></GridInput>
           <GridButton type="submit">new grid</GridButton>
         </GridForm>
-        {/* <MiscButtonContainer></MiscButtonContainer> */}
       </OptionsPanel>
       <Grid cols={config.cols} rows={config.rows}></Grid>
     </>

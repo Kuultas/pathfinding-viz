@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import styled from "styled-components";
 import Node from "./Node";
 import { dijkstra, getPath } from "../algorithms/dijkstra";
+import { recursiveMaze } from "../algorithms/recursiveMaze";
 
 const StyledGrid = styled.div`
   display: grid;
@@ -21,6 +22,7 @@ const AnimateButton = styled.button`
 
 const Grid = ({ cols, rows }) => {
   // grid state
+  const [hasMounted, setHasMounted] = useState(false);
   const [nodes, setNodes] = useState([]);
   const [sourceNode, setSourceNode] = useState({ col: 0, row: 0 });
   const [targetNode, setTargetNode] = useState({ col: 2, row: 2 });
@@ -69,10 +71,13 @@ const Grid = ({ cols, rows }) => {
       ];
       setWalls(tempWalls);
     }
+
+    if (nodes[row][col].isPath) {
+      nodes[row][col].isPath = false;
+    }
   };
 
   const handleClick = () => {
-    if (hasAnimated) visualizeDijkstra(nodes);
     toggleWall(currentMouseTarget.col, currentMouseTarget.row);
   };
 
@@ -143,12 +148,12 @@ const Grid = ({ cols, rows }) => {
 
   const createNode = (col, row) => {
     return {
+      isWall: getNodeIndex(col, row, walls) >= 0,
       col,
       row,
       isSource: isSource(col, row),
       isTarget: isTarget(col, row),
       distance: isSource(col, row) ? 0 : Infinity,
-      isWall: getNodeIndex(col, row, walls) >= 0,
       isVisited: getNodeIndex(col, row, visited) >= 0,
       isPath: getNodeIndex(col, row, path) >= 0,
       previousNode: null,
@@ -171,7 +176,7 @@ const Grid = ({ cols, rows }) => {
     for (let i = 0; i < pathNodes.length; i++) {
       setTimeout(() => {
         setPath([...pathNodes.slice(0, i)]);
-      }, 100 * i);
+      }, 150);
     }
 
     setHasAnimated(true);
@@ -218,6 +223,13 @@ const Grid = ({ cols, rows }) => {
     <>
       <AnimateButton onClick={() => animateDijkstra(nodes)}>
         animate
+      </AnimateButton>
+      <AnimateButton
+        onClick={() => {
+          setWalls(recursiveMaze(nodes, 0, nodes[0].length, 0, nodes.length));
+        }}
+      >
+        log
       </AnimateButton>
       <StyledGrid
         id="mainGrid"
