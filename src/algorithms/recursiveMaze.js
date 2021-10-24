@@ -3,11 +3,11 @@ let walls = [];
 export const recursiveMaze = (grid, x1, x2, y1, y2) => {
   let maze = getSubgrid(grid, x1 + 1, x2 - 1, y1 + 1, y2 - 1);
   divide(maze, 0, maze[0].length, 0, maze.length);
-  return getWalls(maze);
+
+  return walls;
 };
 
 const divide = (grid, x1, x2, y1, y2) => {
-  // console.log(grid);
   if (grid.length < 1) return;
 
   const width = grid[0].length;
@@ -47,13 +47,13 @@ const divide = (grid, x1, x2, y1, y2) => {
   if (wallDirection === "vertical") {
     let leftHalf = getSubgrid(grid, x1, wallPosition, y1, y2);
     let rightHalf = getSubgrid(grid, wallPosition + 1, x2, y1, y2);
-    console.log([leftHalf, rightHalf]);
+
     divide(leftHalf, 0, leftHalf[0].length, 0, leftHalf.length);
     divide(rightHalf, 0, rightHalf[0].length, 0, rightHalf.length);
   } else {
     let topHalf = getSubgrid(grid, x1, x2, y1, wallPosition);
     let bottomHalf = getSubgrid(grid, x1, x2, wallPosition + 1, y2);
-    console.log([topHalf, bottomHalf]);
+
     divide(topHalf, 0, topHalf[0].length, 0, topHalf.length);
     divide(bottomHalf, 0, bottomHalf.length, 0, bottomHalf.length);
   }
@@ -79,7 +79,7 @@ const getSubgrid = (grid, x1, x2, y1, y2) => {
 const makeWallWithGap = (gridSegment, gapPosition) => {
   gridSegment.map((node) => (node.isWall = true));
   gridSegment[gapPosition].isWall = false;
-  walls.push(gridSegment);
+  walls.push(gridSegment.filter((node) => node.isWall));
 };
 
 const getRandomIntWithParity = (min, max, parity) => {
@@ -87,14 +87,4 @@ const getRandomIntWithParity = (min, max, parity) => {
   if (result % 2 === 0 && parity === "even") return result;
   if (result % 2 !== 0 && parity === "odd") return result;
   return result === max ? result - 1 : result + 1;
-};
-
-const getWalls = (grid) => {
-  let walls = [];
-  for (const row of grid) {
-    for (const node of row) {
-      if (node.isWall) walls.push({ col: node.col, row: node.row });
-    }
-  }
-  return walls;
 };

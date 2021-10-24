@@ -3,6 +3,7 @@ import styled from "styled-components";
 import Node from "./Node";
 import { dijkstra, getPath } from "../algorithms/dijkstra";
 import { recursiveMaze } from "../algorithms/recursiveMaze";
+import { model } from "mongoose";
 
 const StyledGrid = styled.div`
   display: grid;
@@ -24,8 +25,11 @@ const Grid = ({ cols, rows }) => {
   // grid state
   const [hasMounted, setHasMounted] = useState(false);
   const [nodes, setNodes] = useState([]);
-  const [sourceNode, setSourceNode] = useState({ col: 0, row: 0 });
-  const [targetNode, setTargetNode] = useState({ col: 2, row: 2 });
+  const [sourceNode, setSourceNode] = useState({ col: 1, row: 1 });
+  const [targetNode, setTargetNode] = useState({
+    col: cols - 2,
+    row: rows - 2,
+  });
 
   // animation state
   const [hasAnimated, setHasAnimated] = useState(false);
@@ -190,6 +194,66 @@ const Grid = ({ cols, rows }) => {
     setPath(pathNodes);
   };
 
+  const animateMaze = (grid) => {
+    let wallNodes = recursiveMaze(grid, 0, grid[0].length, 0, grid.length);
+    wallNodes = getWalls(wallNodes);
+    let borderNodes = [];
+
+    // clear walls
+    setWalls([]);
+    setVisited([]);
+    setPath([]);
+
+    // set source and target
+    setSourceNode({ col: 1, row: 1 });
+    setTargetNode({ col: cols - 2, row: rows - 2 });
+
+    // clear node stuff
+    setNodes(nodes.map((row) => row.map((node) => (node.isWall = false))));
+    setNodes(nodes.map((row) => row.map((node) => (node.isVisited = false))));
+    setNodes(nodes.map((row) => row.map((node) => (node.isPath = false))));
+
+    // add border walls
+    // top border
+    for (let i = 0; i < grid[0].length; i++) {
+      borderNodes.unshift({ col: i, row: 0 });
+    }
+
+    // bottom border
+    for (let i = 0; i < grid[0].length; i++) {
+      borderNodes.unshift({ col: i, row: grid.length - 1 });
+    }
+
+    // right border
+    for (let i = 0; i < grid.length; i++) {
+      borderNodes.push({ col: grid[0].length - 1, row: i });
+    }
+
+    // left border
+    for (let i = 0; i < grid.length; i++) {
+      borderNodes.push({ col: 0, row: i });
+    }
+
+    borderNodes.forEach((node) => wallNodes.unshift(node));
+
+    // iterate over length of wallNodes and draw each wall
+    for (let i = 0; i < wallNodes.length; i++) {
+      setTimeout(() => {
+        setWalls([...wallNodes.slice(0, i)]);
+      }, 10 * 3 * i);
+    }
+  };
+
+  const getWalls = (grid) => {
+    let walls = [];
+    for (const row of grid) {
+      for (const node of row) {
+        if (node.isWall) walls.push({ col: node.col, row: node.row });
+      }
+    }
+    return walls;
+  };
+
   useEffect(() => {
     const setupGrid = () => {
       const nodeCells = [];
@@ -226,7 +290,7 @@ const Grid = ({ cols, rows }) => {
       </AnimateButton>
       <AnimateButton
         onClick={() => {
-          setWalls(recursiveMaze(nodes, 0, nodes[0].length, 0, nodes.length));
+          animateMaze(nodes);
         }}
       >
         log
