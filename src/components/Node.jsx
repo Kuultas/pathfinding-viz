@@ -1,66 +1,69 @@
 import styled, { css } from "styled-components";
-import "./node.css";
 
 const Cell = styled.div`
-  width: 35px;
-  height: 35px;
-  background-color: #2e2e2e67;
-  border: 1px solid #40916c;
-  font-size: 10px;
+  color: #ffffff;
+  width: auto;
+  height: 1.55vw;
+  border: 2px solid #6b6b6b;
+  font-size: 0.4vw;
   display: flex;
   cursor: pointer;
+  overflow: hidden;
   user-select: none;
+  justify-content: center;
+  align-items: center;
+  aspect-ratio: inherit;
+
+  ${(props) =>
+    props.isVisited &&
+    css`
+      background-color: #8181567f;
+    `}
+
+  ${(props) =>
+    props.isPath &&
+    css`
+      background-color: #fad400ce;
+    `}
+
+  ${(props) =>
+    props.isStart &&
+    css`
+      background-color: #004bd6;
+    `}
+
+  ${(props) =>
+    props.isEnd &&
+    css`
+      background-color: #ff1e00;
+    `};
+
+  ${(props) =>
+    props.isWall &&
+    css`
+      background-color: #00945b;
+    `}
 `;
-
-//   ${(props) =>
-//     props.isVisited &&
-//     css`
-//       background-color: #1b4332;
-//     `}
-
-//   ${(props) =>
-//     props.isPath &&
-//     css`
-//       background-color: #d8f3dc;
-//     `}
-
-//   ${(props) =>
-//     props.isStart &&
-//     css`
-//       background-color: #00ff88;
-//     `}
-
-//   ${(props) =>
-//     props.isEnd &&
-//     css`
-//       background-color: #ff5100;
-//     `};
-
-//   ${(props) =>
-//     props.isWall &&
-//     css`
-//       background-color: #081c15;
-//     `}
 
 const Node = ({ col, row, isSource, isTarget, isWall, isVisited, isPath }) => {
   return (
     <Cell
-      className={
-        "grid-cell" +
-        (isSource ? " isSource" : "") +
-        (isTarget ? " isTarget" : "") +
-        (isWall ? " isWall" : "") +
-        (isVisited ? " isVisited" : "") +
-        (isPath ? " isPath" : "")
-      }
+      // className={
+      //   "grid-cell" +
+      //   (isSource ? " isSource" : "") +
+      //   (isTarget ? " isTarget" : "") +
+      //   (isWall ? " isWall" : "") +
+      //   (isVisited ? " isVisited" : "") +
+      //   (isPath ? " isPath" : "")
+      // }
       id={`${col}-${row}`}
-      // isStart={isSource}
-      // isEnd={isTarget}
-      // isWall={isWall}
-      // isVisited={isVisited}
-      // isPath={isPath}
+      isStart={isSource}
+      isEnd={isTarget}
+      isWall={isWall}
+      isVisited={isVisited}
+      isPath={isPath}
     >
-      {`${col},${row}`}
+      {`${col}, ${row}`}
     </Cell>
   );
 };

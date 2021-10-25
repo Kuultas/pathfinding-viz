@@ -55,7 +55,7 @@ const divide = (grid, x1, x2, y1, y2) => {
     let bottomHalf = getSubgrid(grid, x1, x2, wallPosition + 1, y2);
 
     divide(topHalf, 0, topHalf[0].length, 0, topHalf.length);
-    divide(bottomHalf, 0, bottomHalf.length, 0, bottomHalf.length);
+    divide(bottomHalf, 0, bottomHalf[0].length, 0, bottomHalf.length);
   }
 };
 

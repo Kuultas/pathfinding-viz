@@ -29,21 +29,21 @@ const GridInput = styled.input`
   width: 100%;
   padding: 10px;
   margin: 1px;
-  border: 1px solid #40916c;
+  border: 1px solid #6e6e6e;
   border-radius: 5px;
   text-align: center;
 `;
 
 const GridButton = styled.button`
   margin: 1px;
-  border: 1px solid #40916c;
+  border: 1px solid #6e6e6e;
   border-radius: 5px;
   cursor: pointer;
 `;
 
 const PathfindingVisualizer = () => {
-  const [cols, setCols] = useState(15);
-  const [rows, setRows] = useState(10);
+  const [cols, setCols] = useState(35);
+  const [rows, setRows] = useState(20);
   const [config, setConfig] = useState({ cols, rows });
   const [algorithm, setAlgorithm] = useState("dijkstra");
   const [wallTemplate, setWallTemplate] = useState("recursiveMaze");
@@ -55,7 +55,7 @@ const PathfindingVisualizer = () => {
 
   return (
     <>
-      <PageTitle>Pathfinding Visualizer</PageTitle>
+      <PageTitle>pathfinding visualizer</PageTitle>
       <OptionsPanel>
         <GridForm onSubmit={handleSubmit}>
           <GridInput

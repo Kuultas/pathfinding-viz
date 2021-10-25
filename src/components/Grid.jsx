@@ -7,17 +7,16 @@ import { model } from "mongoose";
 
 const StyledGrid = styled.div`
   display: grid;
-  grid-template-rows: repeat(${(props) => props.rows}, 35px);
-  grid-template-columns: repeat(${(props) => props.cols}, 35px);
-  column-gap: 1px;
-  row-gap: 1px;
+  grid-template-rows: repeat(${(props) => props.rows}, 1fr);
+  grid-template-columns: repeat(${(props) => props.cols}, 1fr);
+  aspect-ratio: 1;
 `;
 
 const AnimateButton = styled.button`
   margin-bottom: 10px;
   padding: 10px;
   border-radius: 5px;
-  border: 2px solid #52b788;
+  border: 2px solid #6e6e6e;
   cursor: pointer;
 `;
 
@@ -96,6 +95,7 @@ const Grid = ({ cols, rows }) => {
   };
 
   const handleMouseOver = (e) => {
+    if (e.target.id === "ignore") return;
     if (e.target.id === "mainGrid") return;
 
     const result = e.target.id.split("-");
@@ -209,19 +209,16 @@ const Grid = ({ cols, rows }) => {
     setTargetNode({ col: cols - 2, row: rows - 2 });
 
     // clear node stuff
+    // this is dumb way to do, causes ugly flicker
     setNodes(nodes.map((row) => row.map((node) => (node.isWall = false))));
     setNodes(nodes.map((row) => row.map((node) => (node.isVisited = false))));
     setNodes(nodes.map((row) => row.map((node) => (node.isPath = false))));
 
     // add border walls
+
     // top border
     for (let i = 0; i < grid[0].length; i++) {
       borderNodes.unshift({ col: i, row: 0 });
-    }
-
-    // bottom border
-    for (let i = 0; i < grid[0].length; i++) {
-      borderNodes.unshift({ col: i, row: grid.length - 1 });
     }
 
     // right border
@@ -229,9 +226,14 @@ const Grid = ({ cols, rows }) => {
       borderNodes.push({ col: grid[0].length - 1, row: i });
     }
 
+    // bottom border
+    for (let i = 0; i < grid[0].length; i++) {
+      borderNodes.push({ col: i, row: grid.length - 1 });
+    }
+
     // left border
     for (let i = 0; i < grid.length; i++) {
-      borderNodes.push({ col: 0, row: i });
+      borderNodes.unshift({ col: 0, row: i });
     }
 
     borderNodes.forEach((node) => wallNodes.unshift(node));
@@ -240,7 +242,7 @@ const Grid = ({ cols, rows }) => {
     for (let i = 0; i < wallNodes.length; i++) {
       setTimeout(() => {
         setWalls([...wallNodes.slice(0, i)]);
-      }, 10 * 3 * i);
+      }, 10 * 4 * i);
     }
   };
 
@@ -285,15 +287,15 @@ const Grid = ({ cols, rows }) => {
 
   return (
     <>
-      <AnimateButton onClick={() => animateDijkstra(nodes)}>
-        animate
-      </AnimateButton>
       <AnimateButton
         onClick={() => {
           animateMaze(nodes);
         }}
       >
-        log
+        create maze
+      </AnimateButton>
+      <AnimateButton onClick={() => animateDijkstra(nodes)}>
+        find path
       </AnimateButton>
       <StyledGrid
         id="mainGrid"
