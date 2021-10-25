@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Node from "./Node";
 import { dijkstra, getPath } from "../algorithms/dijkstra";
 import { recursiveMaze } from "../algorithms/recursiveMaze";
-import { model } from "mongoose";
 
 const StyledGrid = styled.div`
   display: grid;
