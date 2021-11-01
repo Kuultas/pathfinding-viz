@@ -3,7 +3,6 @@ let walls = [];
 export const recursiveMaze = (grid, x1, x2, y1, y2) => {
   let maze = getSubgrid(grid, x1 + 1, x2 - 1, y1 + 1, y2 - 1);
   divide(maze, 0, maze[0].length, 0, maze.length);
-
   return walls;
 };
 
@@ -47,15 +46,13 @@ const divide = (grid, x1, x2, y1, y2) => {
   if (wallDirection === "vertical") {
     let leftHalf = getSubgrid(grid, x1, wallPosition, y1, y2);
     let rightHalf = getSubgrid(grid, wallPosition + 1, x2, y1, y2);
-
-    divide(leftHalf, 0, leftHalf[0].length, 0, leftHalf.length);
-    divide(rightHalf, 0, rightHalf[0].length, 0, rightHalf.length);
+    if (leftHalf.length > 1) divide(leftHalf, 0, leftHalf[0].length, 0, leftHalf.length);
+    if (rightHalf.length > 1) divide(rightHalf, 0, rightHalf[0].length, 0, rightHalf.length);
   } else {
     let topHalf = getSubgrid(grid, x1, x2, y1, wallPosition);
     let bottomHalf = getSubgrid(grid, x1, x2, wallPosition + 1, y2);
-
-    divide(topHalf, 0, topHalf[0].length, 0, topHalf.length);
-    divide(bottomHalf, 0, bottomHalf[0].length, 0, bottomHalf.length);
+    if (topHalf.length > 1) divide(topHalf, 0, topHalf[0].length, 0, topHalf.length);
+    if (bottomHalf.length > 1) divide(bottomHalf, 0, bottomHalf[0].length, 0, bottomHalf.length);
   }
 };
 
