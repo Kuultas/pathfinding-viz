@@ -7,9 +7,10 @@ import { ConfigContext } from '../contexts/ConfigContext';
 
 const StyledGrid = styled.div`
     display: grid;
+    width: 85vw;
+    height: 85vh;
     grid-template-columns: repeat(${(props) => props.cols}, 1fr);
     grid-template-rows: repeat(${(props) => props.rows}, 1fr);
-    aspect-ratio: 1;
 `;
 
 const Grid = ({ cols, rows, nodeSize }) => {
@@ -30,6 +31,7 @@ const Grid = ({ cols, rows, nodeSize }) => {
     const [sourceIsMoving, setSourceIsMoving] = useState(false);
     const [targetIsMoving, setTargetIsMoving] = useState(false);
     const ctx = useContext(ConfigContext);
+    const { config } = ctx;
 
     const isSource = (col, row) => {
         return col === sourceNode.col && row === sourceNode.row;
@@ -163,16 +165,25 @@ const Grid = ({ cols, rows, nodeSize }) => {
         setVisited([]);
         setPath([]);
 
-        for (let i = 0; i < visitedNodes.length; i++) {
+        for (let i = 0; i < visitedNodes.length + 1; i++) {
+            if (i === visitedNodes.length) {
+                console.log('ye');
+                setTimeout(() => {
+                    animatePath(pathNodes);
+                }, 10 * i);
+                return;
+            }
             setTimeout(() => {
                 setVisited([...visitedNodes.slice(0, i)]);
-            }, 100);
+            }, 10 * i);
         }
+    };
 
+    const animatePath = (pathNodes) => {
         for (let i = 0; i < pathNodes.length; i++) {
             setTimeout(() => {
                 setPath([...pathNodes.slice(0, i)]);
-            }, 150);
+            });
         }
     };
 
@@ -229,8 +240,14 @@ const Grid = ({ cols, rows, nodeSize }) => {
         for (let i = 0; i < wallNodes.length; i++) {
             setTimeout(() => {
                 setWalls([...wallNodes.slice(0, i)]);
-            }, 10 * 4 * i);
+            }, 10 * i);
         }
+    };
+
+    const visualizeMaze = (grid) => {
+        let wallNodes = recursiveMaze(grid, 0, grid[0].length, 0, grid.length);
+        wallNodes = getWalls(wallNodes);
+        setWalls(wallNodes);
     };
 
     const getWalls = (grid) => {
@@ -260,7 +277,8 @@ const Grid = ({ cols, rows, nodeSize }) => {
                             isTarget={node.isTarget}
                             isWall={node.isWall}
                             isPath={node.isPath}
-                            isVisited={node.isVisited}></Node>
+                            isVisited={node.isVisited}
+                        ></Node>
                     );
                     currentRow.push(node);
                 }
@@ -270,13 +288,21 @@ const Grid = ({ cols, rows, nodeSize }) => {
             setNodes(nodeCells);
         };
         setupGrid();
-    }, [ctx.config.colors, sourceNode, targetNode, walls, path, visited]);
+    }, [
+        config.colors,
+        cols,
+        rows,
+        sourceNode,
+        targetNode,
+        walls,
+        path,
+        visited,
+    ]);
 
     return (
         <>
-            <button onClick={() => animateDijkstra(nodes)}>DIJKSTRA</button>
-            <button onClick={() => visualizeDijkstra(nodes)}></button>
-            <button onClick={() => animateMaze(nodes)}>MAZE</button>
+            <button onClick={() => animateDijkstra(nodes)}>dijkstra</button>
+            <button onClick={() => animateMaze(nodes)}>maze</button>
             <StyledGrid
                 id='mainGrid'
                 rows={rows}
@@ -286,7 +312,8 @@ const Grid = ({ cols, rows, nodeSize }) => {
                 onMouseDown={handleMouseDown}
                 onMouseOver={handleMouseOver}
                 onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseLeave}>
+                onMouseLeave={handleMouseLeave}
+            >
                 {nodes.map((row) => {
                     return row.map((node) => node.element);
                 })}

@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import OptionsPanel from './components/OptionsPanel';
 import PathfindingVisualizer from './components/PathfindingVisualizer';
 import { ConfigProvider } from './contexts/ConfigContext';
 
@@ -14,15 +13,18 @@ const PageContainer = styled.div`
 const PageWrapper = styled.div`
     display: flex;
     flex-direction: column;
+    width: 100vw;
+    height: 100vh;
     align-items: center;
+    justify-content: center;
+    overflow-x: scroll;
 `;
 
 function App() {
     return (
-        <PageContainer>
-            <PageWrapper>
+        <PageContainer className='pageContainer'>
+            <PageWrapper className='pageWrapper'>
                 <ConfigProvider>
-                    <OptionsPanel></OptionsPanel>
                     <PathfindingVisualizer></PathfindingVisualizer>
                 </ConfigProvider>
             </PageWrapper>

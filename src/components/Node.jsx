@@ -20,15 +20,13 @@ const Cell = styled.div.attrs((props) => ({
 }))`
     color: #ffffff;
     border: 1px solid #303030;
-    font-size: 55%;
-    width: Min(2.5vw, 50px);
-    display: flex;
+    font-size: calc(max(5px, 0.7vh));
     cursor: pointer;
-    overflow: hidden;
     user-select: none;
+    display: flex;
     justify-content: center;
     align-items: center;
-    aspect-ratio: inherit;
+    transition: 0.5s;
 `;
 
 const Node = ({
@@ -49,8 +47,19 @@ const Node = ({
             isEnd={isTarget}
             isWall={isWall}
             isVisited={isVisited}
-            isPath={isPath}>
-            {`${col}, ${row}`}
+            isPath={isPath}
+        >
+            {isSource
+                ? 'S'
+                : isTarget
+                ? 'T'
+                : isWall
+                ? 'W'
+                : isPath
+                ? 'P'
+                : isVisited
+                ? 'V'
+                : ''}
         </Cell>
     );
 };

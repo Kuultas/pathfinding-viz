@@ -4,25 +4,29 @@ import Grid from './Grid';
 import styled from 'styled-components';
 import OptionsPanel from './OptionsPanel';
 import { ConfigContext } from '../contexts/ConfigContext';
+import ColorPicker from './ColorPicker';
 
-const PageTitle = styled.h1`
-    margin-bottom: 0;
-    width: max-content;
-    text-align: center;
-    font-size: 26px;
+const Container = styled.div`
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 `;
 
 const PathfindingVisualizer = () => {
     const ctx = useContext(ConfigContext);
+    const { config } = ctx;
 
     return (
-        <>
-            <PageTitle>pathfinding visualizer</PageTitle>
+        <Container className='appContainer'>
+            <OptionsPanel></OptionsPanel>
             <Grid
-                cols={ctx.config.dimensions.cols}
-                rows={ctx.config.dimensions.rows}
-                nodeSize={ctx.config.nodeSize}></Grid>
-        </>
+                cols={config.gridSize.cols}
+                rows={config.gridSize.rows}
+            ></Grid>
+        </Container>
     );
 };
 

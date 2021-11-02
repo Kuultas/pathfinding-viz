@@ -8,8 +8,8 @@ export const useConfig = () => {
 };
 
 export const ConfigProvider = ({ children }) => {
-    const [dimensions] = useState(
-        isMobile ? { cols: 5, rows: 5 } : { cols: 10, rows: 10 }
+    const [gridSize] = useState(
+        isMobile ? { cols: 10, rows: 15 } : { cols: 50, rows: 30 }
     );
     const [colors] = useState({
         visited: '#8181567f',
@@ -18,11 +18,13 @@ export const ConfigProvider = ({ children }) => {
         end: '#ff1e00',
         wall: '#00945b',
     });
+
     const [maze] = useState('recursiveDivision');
+
     const [algorithm] = useState('dijkstra');
 
     const [config, setConfig] = useState({
-        dimensions,
+        gridSize,
         maze,
         algorithm,
         colors,

@@ -1,163 +1,129 @@
 import { useState, useContext } from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { ConfigContext } from '../contexts/ConfigContext';
+import ColorPicker from './ColorPicker';
 
 const Main = styled.div`
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
     background-color: #50505045;
-    border-radius: 10px;
-    padding: 15px;
-    margin: 10px;
-`;
-
-const Title = styled.h1`
-    font-size: 1.5em;
-    font-weight: 300;
-    color: #fff;
-    text-align: center;
-    margin-top: 10px;
-    background-color: transparent;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
 `;
 
 const Algorithms = styled.div`
-    display: flex;
-    align-content: center;
-    justify-content: space-evenly;
     background-color: transparent;
 `;
 
 const Mazes = styled.div`
-    display: flex;
-    align-content: center;
-    justify-content: space-evenly;
     background-color: transparent;
 `;
 
-const Colors = styled.div`
-    display: flex;
-    align-content: center;
-    background-color: transparent;
-`;
-
-const ColorPicker = styled.input.attrs((props) => ({
-    style: {
-        backgroundColor: props.color,
-    },
-}))`
+const DropdownOptions = styled.select`
+    height: 25%;
+    border-radius: 5px;
     border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    margin: 5px 10px;
+    background-color: transparent;
+    font-size: 16px;
+`;
 
-    ::-webkit-color-swatch-wrapper {
-        padding: 25px;
-    }
+const GridSizeForm = styled.form`
+    background-color: transparent;
+`;
 
-    ::-webkit-color-swatch {
-        visibility: hidden;
-    }
+const NumberInput = styled.input`
+    padding: 5px;
+    margin: 5px;
+    background-color: #313131;
+    border: none;
+    border-radius: 5px;
+`;
+
+const SubmitButton = styled.button`
+    padding: 5px;
+    margin: 5px;
+    background-color: #1a1a1a;
+    border: none;
+    border-radius: 5px;
 `;
 
 const OptionsPanel = () => {
     const ctx = useContext(ConfigContext);
+    const { config, setConfig } = ctx;
+
+    const [algorithm, setAlgorithm] = useState('dijkstra');
+    const [maze, setMaze] = useState('recursiveDivision');
+    const [gridSize, setGridSize] = useState({ cols: 15, rows: 15 });
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        setConfig({
+            ...config,
+            gridSize,
+        });
+    };
 
     return (
-        <Main>
-            <Title>settings</Title>
-            <Algorithms>
-                <select name='algorithm' id='algorithm'>
-                    <option value='dijkstra'>dijkstra</option>
-                    <option value='a-star'>a*</option>
-                    <option value='breadth-first'>breadth first</option>
-                </select>
-            </Algorithms>
-            <Mazes>
-                <select name='maze' id='maze'>
-                    <option value='recursive-division'>
-                        recursive division
-                    </option>
-                    <option value='random'>random</option>
-                    <option value='spiral'>spiral</option>
-                </select>
-            </Mazes>
-            <Colors>
-                <ColorPicker
-                    color={ctx.config.colors.visited}
-                    type='color'
-                    name='visitedColor'
-                    id='visitedColor'
-                    onChange={(e) =>
-                        ctx.setConfig({
-                            ...ctx.config,
-                            colors: {
-                                ...ctx.config.colors,
-                                visited: e.target.value,
-                            },
-                        })
-                    }
-                />
-                <ColorPicker
-                    color={ctx.config.colors.path}
-                    type='color'
-                    name='pathColor'
-                    id='pathColor'
-                    onChange={(e) =>
-                        ctx.setConfig({
-                            ...ctx.config,
-                            colors: {
-                                ...ctx.config.colors,
-                                path: e.target.value,
-                            },
-                        })
-                    }
-                />
-                <ColorPicker
-                    color={ctx.config.colors.wall}
-                    type='color'
-                    name='wallColor'
-                    id='wallColor'
-                    onChange={(e) =>
-                        ctx.setConfig({
-                            ...ctx.config,
-                            colors: {
-                                ...ctx.config.colors,
-                                wall: e.target.value,
-                            },
-                        })
-                    }
-                />
-                <ColorPicker
-                    color={ctx.config.colors.start}
-                    type='color'
-                    name='startColor'
-                    id='startColor'
-                    onChange={(e) =>
-                        ctx.setConfig({
-                            ...ctx.config,
-                            colors: {
-                                ...ctx.config.colors,
-                                start: e.target.value,
-                            },
-                        })
-                    }
-                />
-                <ColorPicker
-                    color={ctx.config.colors.end}
-                    type='color'
-                    name='endColor'
-                    id='endColor'
-                    onChange={(e) =>
-                        ctx.setConfig({
-                            ...ctx.config,
-                            colors: {
-                                ...ctx.config.colors,
-                                end: e.target.value,
-                            },
-                        })
-                    }
-                />
-            </Colors>
-        </Main>
+        <>
+            <Main>
+                <ColorPicker></ColorPicker>
+                {/* <Algorithms>
+                    <DropdownOptions name='algorithm' id='algorithm'>
+                        <option value='dijkstra'>dijkstra</option>
+                        <option value='a-star'>a*</option>
+                        <option value='breadth-first'>breadth first</option>
+                    </DropdownOptions>
+                </Algorithms>
+                <Mazes>
+                    <DropdownOptions name='maze' id='maze'>
+                        <option value='recursive-division'>
+                            recursive division
+                        </option>
+                        <option value='random'>random</option>
+                        <option value='spiral'>spiral</option>
+                    </DropdownOptions>
+                </Mazes> */}
+                <GridSizeForm onSubmit={handleSubmit}>
+                    <NumberInput
+                        type='number'
+                        name='cols'
+                        id='cols'
+                        min='5'
+                        max='35'
+                        placeholder='cols'
+                        required
+                        onChange={(e) =>
+                            setGridSize({
+                                ...gridSize,
+                                cols: e.target.value,
+                            })
+                        }
+                    ></NumberInput>
+                    <NumberInput
+                        type='number'
+                        name='rows'
+                        id='rows'
+                        min='5'
+                        max='35'
+                        placeholder='rows'
+                        required
+                        onChange={(e) =>
+                            setGridSize({
+                                ...gridSize,
+                                rows: e.target.value,
+                            })
+                        }
+                    ></NumberInput>
+                    <SubmitButton type='submit'>submit</SubmitButton>
+                </GridSizeForm>
+            </Main>
+        </>
     );
 };
 
