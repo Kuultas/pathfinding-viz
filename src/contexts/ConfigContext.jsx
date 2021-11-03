@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 import React, { useContext, useState } from 'react';
 import { isMobile } from 'react-device-detect';
-=======
-import React, { useContext, useState } from "react";
->>>>>>> dev
 
 export const ConfigContext = React.createContext();
 
 export const useConfig = () => {
-<<<<<<< HEAD
     return useContext(ConfigContext);
 };
 
@@ -40,17 +35,4 @@ export const ConfigProvider = ({ children }) => {
             {children}
         </ConfigContext.Provider>
     );
-=======
-  return useContext(ConfigContext);
-};
-
-export const ConfigProvider = ({ children }) => {
-  const [config, setConfig] = useState({});
-
-  return (
-    <ConfigContext.Provider value={{ config, setConfig }}>
-      {children}
-    </ConfigContext.Provider>
-  );
->>>>>>> dev
 };
