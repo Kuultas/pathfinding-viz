@@ -1,9 +1,19 @@
 let walls = [];
 
 export const recursiveMaze = (grid, x1, x2, y1, y2) => {
+    walls = [];
+    let leftBorder = getCol(grid, 0);
+    let topBorder = getRow(grid, 0);
+    let rightBorder = getCol(grid, grid[0].length - 1);
+    let bottomBorder = getRow(grid, grid.length - 1);
+    walls.push(leftBorder);
+    walls.push(topBorder);
+    walls.push(rightBorder);
+    walls.push(bottomBorder);
     let maze = getSubgrid(grid, x1 + 1, x2 - 1, y1 + 1, y2 - 1);
     divide(maze, 0, maze[0].length, 0, maze.length);
-    return walls;
+
+    return walls.flat();
 };
 
 const divide = (grid, x1, x2, y1, y2) => {

@@ -38,6 +38,9 @@ const Node = ({
     isVisited,
     isPath,
     colors,
+    onMouseDown,
+    onMouseEnter,
+    onMouseUp,
 }) => {
     return (
         <Cell
@@ -48,6 +51,9 @@ const Node = ({
             isWall={isWall}
             isVisited={isVisited}
             isPath={isPath}
+            onMouseDown={() => onMouseDown(col, row)}
+            onMouseEnter={() => onMouseEnter(col, row)}
+            onMouseUp={() => onMouseUp()}
         >
             {isSource
                 ? 'S'

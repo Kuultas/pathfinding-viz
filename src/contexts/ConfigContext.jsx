@@ -11,6 +11,7 @@ export const ConfigProvider = ({ children }) => {
     const [gridSize] = useState(
         isMobile ? { cols: 10, rows: 15 } : { cols: 50, rows: 30 }
     );
+
     const [colors] = useState({
         visited: '#8181567f',
         path: '#fad400ce',
@@ -23,11 +24,14 @@ export const ConfigProvider = ({ children }) => {
 
     const [algorithm] = useState('dijkstra');
 
+    const [speed] = useState(3);
+
     const [config, setConfig] = useState({
         gridSize,
         maze,
         algorithm,
         colors,
+        speed,
     });
 
     return (

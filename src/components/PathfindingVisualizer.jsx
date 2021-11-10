@@ -1,10 +1,8 @@
-import { useState, useContext } from 'react';
-import { isMobile } from 'react-device-detect';
+import { useContext } from 'react';
 import Grid from './Grid';
 import styled from 'styled-components';
 import OptionsPanel from './OptionsPanel';
 import { ConfigContext } from '../contexts/ConfigContext';
-import ColorPicker from './ColorPicker';
 
 const Container = styled.div`
     height: 100%;
@@ -25,6 +23,8 @@ const PathfindingVisualizer = () => {
             <Grid
                 cols={config.gridSize.cols}
                 rows={config.gridSize.rows}
+                sourceNode={config.sourceNode}
+                targetNode={config.targetNode}
             ></Grid>
         </Container>
     );

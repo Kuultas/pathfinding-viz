@@ -1,13 +1,11 @@
-export const dijkstra = (grid) => {
-    let unvisited = getAllNodes(grid);
-    unvisited.map((node) => (node.isVisited = false));
-    sortByDistance(unvisited);
-    let currentNode = unvisited.shift();
+export const dijkstra = (grid, sourceNode) => {
     let visitedNodesInOrder = [];
+    sourceNode.distance = 0;
+    let unvisited = getAllNodes(grid);
+    let currentNode = sourceNode;
 
     while (!!unvisited.length) {
         let unvisitedNeighbours = getUnvisitedNeighbours(currentNode, grid);
-
         if (currentNode.distance === Infinity) return visitedNodesInOrder;
 
         if (currentNode.isTarget) {
@@ -15,7 +13,6 @@ export const dijkstra = (grid) => {
             return visitedNodesInOrder;
         }
 
-        // update neighbours
         for (const node of unvisitedNeighbours) {
             if (node.isWall) continue;
             let tentativeDistance = currentNode.distance + 1;
@@ -25,7 +22,6 @@ export const dijkstra = (grid) => {
             node.previousNode = currentNode;
         }
 
-        // sort unvisited by distance and move to closest
         sortByDistance(unvisited);
         currentNode.isVisited = true;
         visitedNodesInOrder.push(currentNode);
@@ -61,14 +57,12 @@ const getAllNodes = (grid) => {
     return nodes;
 };
 
-export const getPath = (visitedNodes) => {
-    if (!visitedNodes[visitedNodes.length - 1].isTarget) return [];
-
-    let pathNodes = [];
-    let currentNode = visitedNodes.pop();
-    while (!!currentNode) {
-        if (!currentNode.isSource) pathNodes.unshift(currentNode);
+export const getPath = (targetNode) => {
+    let path = [];
+    let currentNode = targetNode;
+    while (currentNode !== null) {
+        path.unshift(currentNode);
         currentNode = currentNode.previousNode;
     }
-    return pathNodes;
+    return path;
 };

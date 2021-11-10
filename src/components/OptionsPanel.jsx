@@ -7,7 +7,8 @@ const Main = styled.div`
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 100vw;
+    height: 3vh;
     background-color: #50505045;
     border-radius: 5px;
     display: flex;
@@ -73,29 +74,13 @@ const OptionsPanel = () => {
         <>
             <Main>
                 <ColorPicker></ColorPicker>
-                {/* <Algorithms>
-                    <DropdownOptions name='algorithm' id='algorithm'>
-                        <option value='dijkstra'>dijkstra</option>
-                        <option value='a-star'>a*</option>
-                        <option value='breadth-first'>breadth first</option>
-                    </DropdownOptions>
-                </Algorithms>
-                <Mazes>
-                    <DropdownOptions name='maze' id='maze'>
-                        <option value='recursive-division'>
-                            recursive division
-                        </option>
-                        <option value='random'>random</option>
-                        <option value='spiral'>spiral</option>
-                    </DropdownOptions>
-                </Mazes> */}
                 <GridSizeForm onSubmit={handleSubmit}>
                     <NumberInput
                         type='number'
                         name='cols'
                         id='cols'
                         min='5'
-                        max='35'
+                        max='50'
                         placeholder='cols'
                         required
                         onChange={(e) =>
@@ -110,7 +95,7 @@ const OptionsPanel = () => {
                         name='rows'
                         id='rows'
                         min='5'
-                        max='35'
+                        max='50'
                         placeholder='rows'
                         required
                         onChange={(e) =>

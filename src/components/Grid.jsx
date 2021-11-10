@@ -1,321 +1,317 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import styled from 'styled-components';
 import Node from './Node';
+import { ConfigContext } from '../contexts/ConfigContext';
 import { dijkstra, getPath } from '../algorithms/dijkstra';
 import { recursiveMaze } from '../algorithms/recursiveMaze';
-import { ConfigContext } from '../contexts/ConfigContext';
 
 const StyledGrid = styled.div`
     display: grid;
-    width: 85vw;
+    width: 95vw;
     height: 85vh;
     grid-template-columns: repeat(${(props) => props.cols}, 1fr);
     grid-template-rows: repeat(${(props) => props.rows}, 1fr);
 `;
 
-const Grid = ({ cols, rows, nodeSize }) => {
-    const [nodes, setNodes] = useState([]);
-    const [sourceNode, setSourceNode] = useState({ col: 1, row: 1 });
-    const [targetNode, setTargetNode] = useState({
-        col: cols - 2,
-        row: rows - 2,
-    });
-    const [walls, setWalls] = useState([]);
-    const [visited, setVisited] = useState([]);
-    const [path, setPath] = useState([]);
-    const [currentMouseTarget, setCurrentMouseTarget] = useState({
-        row: 0,
-        col: 0,
-    });
+const TempUIButton = styled.button`
+    background-color: #3a3a3a;
+    border: none;
+    border-radius: 5px;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+`;
+
+const Grid = ({ cols, rows }) => {
+    const ctx = useContext(ConfigContext);
+    const { config } = ctx;
+    const [grid, setGrid] = useState([]);
     const [mouseIsPressed, setMouseIsPressed] = useState(false);
     const [sourceIsMoving, setSourceIsMoving] = useState(false);
     const [targetIsMoving, setTargetIsMoving] = useState(false);
-    const ctx = useContext(ConfigContext);
-    const { config } = ctx;
+    const [reset, setReset] = useState(false);
+    const [hasAnimated, setHasAnimated] = useState(false);
 
-    const isSource = (col, row) => {
-        return col === sourceNode.col && row === sourceNode.row;
-    };
-
-    const isTarget = (col, row) => {
-        return col === targetNode.col && row === targetNode.row;
-    };
-
-    const getNodeIndex = (col, row, nodes) => {
-        return nodes.findIndex((item) => item.col === col && item.row === row);
+    const resetToggle = () => {
+        setReset(!reset);
     };
 
     const toggleWall = (col, row) => {
-        const wall = { col: col, row: row };
-        const wallIndex = getNodeIndex(col, row, walls);
+        if (grid[row][col].isSource || grid[row][col].isTarget) return;
+        const newGrid = grid.slice();
+        newGrid[row][col].isWall = !newGrid[row][col].isWall;
+        setGrid(newGrid);
+    };
 
-        if (isSource(col, row) || isTarget(col, row)) return;
-
-        if (wallIndex < 0) {
-            setWalls([...walls, wall]);
-        } else {
-            const tempWalls = [
-                ...walls.slice(0, wallIndex),
-                ...walls.slice(wallIndex + 1),
-            ];
-            setWalls(tempWalls);
-        }
-
-        if (nodes[row][col].isPath) {
-            nodes[row][col].isPath = false;
+    const getSourceNode = (grid) => {
+        for (const row of grid) {
+            for (const node of row) {
+                if (node.isSource) return node;
+            }
         }
     };
 
-    const handleClick = () => {
-        toggleWall(currentMouseTarget.col, currentMouseTarget.row);
+    const clearSource = () => {
+        const newGrid = grid.slice();
+        newGrid.forEach((row) => {
+            row.forEach((node) => {
+                node.isSource = false;
+            });
+        });
+        setGrid(newGrid);
     };
 
-    const handleMouseDown = () => {
-        if (isSource(currentMouseTarget.col, currentMouseTarget.row)) {
-            setSourceIsMoving(true);
-        } else if (isTarget(currentMouseTarget.col, currentMouseTarget.row)) {
-            setTargetIsMoving(true);
+    const getTargetNode = (grid) => {
+        for (const row of grid) {
+            for (const node of row) {
+                if (node.isTarget) return node;
+            }
         }
+    };
 
+    const clearTarget = () => {
+        const newGrid = grid.slice();
+        newGrid.forEach((row) => {
+            row.forEach((node) => {
+                node.isTarget = false;
+            });
+        });
+        setGrid(newGrid);
+    };
+
+    const clearWalls = () => {
+        const newGrid = grid.slice();
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                newGrid[row][col].isWall = false;
+            }
+        }
+        setGrid(newGrid);
+    };
+
+    const clearVisited = () => {
+        const newGrid = grid.slice();
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                newGrid[row][col].isVisited = false;
+            }
+        }
+        setGrid(newGrid);
+    };
+
+    const clearPath = () => {
+        const newGrid = grid.slice();
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                newGrid[row][col].isPath = false;
+            }
+        }
+        setGrid(newGrid);
+    };
+
+    const clearDistance = () => {
+        const newGrid = grid.slice();
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                newGrid[row][col].distance = Infinity;
+            }
+        }
+        setGrid(newGrid);
+    };
+
+    const clearPrevious = () => {
+        const newGrid = grid.slice();
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < cols; col++) {
+                newGrid[row][col].previousNode = null;
+            }
+        }
+        setGrid(newGrid);
+    };
+
+    const handleMouseDown = (col, row) => {
+        if (grid[row][col].isSource) setSourceIsMoving(true);
+        if (grid[row][col].isTarget) setTargetIsMoving(true);
+        toggleWall(col, row);
         setMouseIsPressed(true);
     };
 
-    const handleMouseOver = (e) => {
-        if (e.target.id === 'ignore') return;
-        if (e.target.id === 'mainGrid') return;
+    const handleMouseEnter = (col, row) => {
+        if (sourceIsMoving) {
+            const newGrid = grid.slice();
+            clearSource();
+            newGrid[row][col].isSource = true;
+            setGrid(newGrid);
 
-        const result = e.target.id.split('-');
-        result.map((node) => parseInt(node));
-        setCurrentMouseTarget({
-            col: parseInt(result[0]),
-            row: parseInt(result[1]),
-        });
+            if (hasAnimated) visualizeDijkstra(grid, getSourceNode(grid));
+        }
+        if (targetIsMoving) {
+            const newGrid = grid.slice();
+            clearTarget();
+            newGrid[row][col].isTarget = true;
+            setGrid(newGrid);
 
-        if (!mouseIsPressed) return;
+            if (hasAnimated) visualizeDijkstra(grid, getSourceNode(grid));
+        }
 
-        if (sourceIsMoving || targetIsMoving) return;
-
-        toggleWall(currentMouseTarget.col, currentMouseTarget.row);
+        if (mouseIsPressed) toggleWall(col, row);
     };
 
     const handleMouseUp = () => {
         setMouseIsPressed(false);
-
-        if (sourceIsMoving) {
-            setSourceNode({
-                col: currentMouseTarget.col,
-                row: currentMouseTarget.row,
-            });
-
-            if (
-                getNodeIndex(
-                    currentMouseTarget.col,
-                    currentMouseTarget.row,
-                    walls
-                ) >= 0
-            ) {
-                toggleWall(currentMouseTarget.col, currentMouseTarget.row);
-            }
-
-            setSourceIsMoving(false);
-        }
-
-        if (targetIsMoving) {
-            setTargetNode({
-                col: currentMouseTarget.col,
-                row: currentMouseTarget.row,
-            });
-
-            if (
-                getNodeIndex(
-                    currentMouseTarget.col,
-                    currentMouseTarget.row,
-                    walls
-                ) >= 0
-            ) {
-                toggleWall(currentMouseTarget.col, currentMouseTarget.row);
-            }
-
-            setTargetIsMoving(false);
-        }
+        setSourceIsMoving(false);
+        setTargetIsMoving(false);
     };
 
-    const handleMouseLeave = () => {
-        setMouseIsPressed(false);
-    };
+    const animateDijkstra = (grid, sourceNode) => {
+        setHasAnimated(true);
 
-    const createNode = (col, row) => {
-        return {
-            isWall: getNodeIndex(col, row, walls) >= 0,
-            col,
-            row,
-            isSource: isSource(col, row),
-            isTarget: isTarget(col, row),
-            distance: isSource(col, row) ? 0 : Infinity,
-            isVisited: getNodeIndex(col, row, visited) >= 0,
-            isPath: getNodeIndex(col, row, path) >= 0,
-            previousNode: null,
-        };
-    };
+        clearDistance();
+        clearPrevious();
+        clearPath();
+        clearVisited();
 
-    const animateDijkstra = (grid) => {
-        const visitedNodes = dijkstra(grid);
-        const pathNodes = getPath(visitedNodes);
+        getSourceNode(grid).isWall = false;
+        getTargetNode(grid).isWall = false;
 
-        setVisited([]);
-        setPath([]);
+        const visitedNodes = dijkstra(grid, sourceNode);
+        const nodesInShortestPathOrder = getPath(getTargetNode(grid));
 
-        for (let i = 0; i < visitedNodes.length + 1; i++) {
-            if (i === visitedNodes.length) {
-                console.log('ye');
+        clearVisited();
+
+        for (let i = 0; i <= visitedNodes.length - 1; i++) {
+            if (visitedNodes[i].isTarget) {
                 setTimeout(() => {
-                    animatePath(pathNodes);
-                }, 10 * i);
+                    animatePath(nodesInShortestPathOrder);
+                }, 15 * i * config.speed);
                 return;
             }
             setTimeout(() => {
-                setVisited([...visitedNodes.slice(0, i)]);
-            }, 10 * i);
+                const newGrid = grid.slice();
+                const node = visitedNodes[i];
+                node.isVisited = true;
+                setGrid(newGrid);
+            }, 15 * i * config.speed);
+        }
+    };
+
+    const visualizeDijkstra = (grid, sourceNode) => {
+        clearDistance();
+        clearPrevious();
+        clearPath();
+        clearVisited();
+
+        const visitedNodes = dijkstra(grid, sourceNode);
+        const nodesInShortestPathOrder = getPath(getTargetNode(grid));
+
+        clearVisited();
+
+        for (const node of visitedNodes) {
+            node.isVisited = true;
+        }
+
+        for (const node of nodesInShortestPathOrder) {
+            node.isPath = true;
         }
     };
 
     const animatePath = (pathNodes) => {
         for (let i = 0; i < pathNodes.length; i++) {
             setTimeout(() => {
-                setPath([...pathNodes.slice(0, i)]);
+                const newGrid = grid.slice();
+                const node = pathNodes[i];
+                node.isPath = true;
+                setGrid(newGrid);
             });
         }
     };
 
-    const visualizeDijkstra = (grid) => {
-        const visitedNodes = dijkstra(grid);
-        const pathNodes = getPath(visitedNodes);
-
-        setVisited(visitedNodes);
-        setPath(pathNodes);
-    };
-
-    const animateMaze = (grid) => {
+    const animateRecursiveMaze = (grid) => {
         let wallNodes = recursiveMaze(grid, 0, grid[0].length, 0, grid.length);
-        wallNodes = getWalls(wallNodes);
-        let borderNodes = [];
 
-        setWalls([]);
-        setVisited([]);
-        setPath([]);
+        clearVisited();
+        clearPath();
+        clearWalls();
 
-        setSourceNode({ col: 1, row: 1 });
-        setTargetNode({ col: cols - 2, row: rows - 2 });
-
-        // clear nodes
-        setNodes(nodes.map((row) => row.map((node) => (node.isWall = false))));
-        setNodes(
-            nodes.map((row) => row.map((node) => (node.isVisited = false)))
-        );
-        setNodes(nodes.map((row) => row.map((node) => (node.isPath = false))));
-
-        // top border
-        for (let i = 0; i < grid[0].length; i++) {
-            borderNodes.unshift({ col: i, row: 0 });
-        }
-
-        // right border
-        for (let i = 0; i < grid.length; i++) {
-            borderNodes.push({ col: grid[0].length - 1, row: i });
-        }
-
-        // bottom border
-        for (let i = 0; i < grid[0].length; i++) {
-            borderNodes.push({ col: i, row: grid.length - 1 });
-        }
-
-        // left border
-        for (let i = 0; i < grid.length; i++) {
-            borderNodes.unshift({ col: 0, row: i });
-        }
-
-        borderNodes.forEach((node) => wallNodes.unshift(node));
-
-        // draw walls
         for (let i = 0; i < wallNodes.length; i++) {
             setTimeout(() => {
-                setWalls([...wallNodes.slice(0, i)]);
-            }, 10 * i);
+                const newGrid = grid.slice();
+                const node = wallNodes[i];
+                node.isWall = true;
+                setGrid(newGrid);
+            }, 15 * i * config.speed);
         }
-    };
-
-    const visualizeMaze = (grid) => {
-        let wallNodes = recursiveMaze(grid, 0, grid[0].length, 0, grid.length);
-        wallNodes = getWalls(wallNodes);
-        setWalls(wallNodes);
-    };
-
-    const getWalls = (grid) => {
-        let walls = [];
-        for (const row of grid) {
-            for (const node of row) {
-                if (node.isWall) walls.push({ col: node.col, row: node.row });
-            }
-        }
-        return walls;
     };
 
     useEffect(() => {
-        const setupGrid = () => {
-            const nodeCells = [];
+        const createNode = (col, row) => {
+            return {
+                col,
+                row,
+                isSource: false,
+                isTarget: false,
+                isWall: false,
+                isVisited: false,
+                isPath: false,
+                distance: Infinity,
+                previousNode: null,
+            };
+        };
+
+        const initializeGrid = () => {
+            const newGrid = [];
             for (let row = 0; row < rows; row++) {
-                let currentRow = [];
+                const currentRow = [];
                 for (let col = 0; col < cols; col++) {
-                    let node = createNode(col, row);
-                    node.element = (
+                    currentRow.push(createNode(col, row));
+                }
+                newGrid.push(currentRow);
+            }
+
+            newGrid[1][1].isSource = true;
+            newGrid[rows - 2][cols - 2].isTarget = true;
+            return newGrid;
+        };
+
+        setGrid(initializeGrid());
+    }, [cols, rows, reset]);
+
+    return (
+        <>
+            <div>
+                <TempUIButton onClick={resetToggle}>reset</TempUIButton>
+                <TempUIButton
+                    onClick={() => animateDijkstra(grid, getSourceNode(grid))}
+                >
+                    dijkstra
+                </TempUIButton>
+                <TempUIButton onClick={() => animateRecursiveMaze(grid)}>
+                    recursive maze
+                </TempUIButton>
+            </div>
+            <StyledGrid id='mainGrid' rows={rows} cols={cols}>
+                {grid.map((row) => {
+                    return row.map((node) => (
                         <Node
-                            row={row}
-                            col={col}
+                            col={node.col}
+                            row={node.row}
                             colors={ctx.config.colors}
-                            key={`node-${col}-${row}`}
+                            key={`node-${node.col}-${node.row}`}
                             isSource={node.isSource}
                             isTarget={node.isTarget}
                             isWall={node.isWall}
                             isPath={node.isPath}
                             isVisited={node.isVisited}
+                            distance={node.distance}
+                            onMouseDown={(col, row) =>
+                                handleMouseDown(col, row)
+                            }
+                            onMouseEnter={(col, row) =>
+                                handleMouseEnter(col, row)
+                            }
+                            onMouseUp={() => handleMouseUp()}
                         ></Node>
-                    );
-                    currentRow.push(node);
-                }
-                nodeCells.push(currentRow);
-            }
-
-            setNodes(nodeCells);
-        };
-        setupGrid();
-    }, [
-        config.colors,
-        cols,
-        rows,
-        sourceNode,
-        targetNode,
-        walls,
-        path,
-        visited,
-    ]);
-
-    return (
-        <>
-            <button onClick={() => animateDijkstra(nodes)}>dijkstra</button>
-            <button onClick={() => animateMaze(nodes)}>maze</button>
-            <StyledGrid
-                id='mainGrid'
-                rows={rows}
-                cols={cols}
-                nodeSize={nodeSize}
-                onClick={handleClick}
-                onMouseDown={handleMouseDown}
-                onMouseOver={handleMouseOver}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseLeave}
-            >
-                {nodes.map((row) => {
-                    return row.map((node) => node.element);
+                    ));
                 })}
             </StyledGrid>
         </>
