@@ -1,7 +1,7 @@
-import Grid from './components/Grid';
+import PathfindingVisualizer from './components/PathfindingVisualizer';
 
 function App() {
-    return <Grid></Grid>;
+    return <PathfindingVisualizer></PathfindingVisualizer>;
 }
 
 export default App;

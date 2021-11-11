@@ -16,7 +16,7 @@ const StyledGrid = styled.div`
     margin-top: 1vh;
 `;
 
-const Grid = () => {
+const PathfindingVisualizer = () => {
     const [rows, setRows] = useState(isMobile ? 15 : 30);
     const [cols, setCols] = useState(isMobile ? 10 : 50);
     const [grid, setGrid] = useState([]);
@@ -329,4 +329,4 @@ const Grid = () => {
     );
 };
 
-export default Grid;
+export default PathfindingVisualizer;
