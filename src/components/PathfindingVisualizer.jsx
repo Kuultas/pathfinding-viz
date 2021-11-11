@@ -1,8 +1,5 @@
-import { useContext } from 'react';
 import Grid from './Grid';
 import styled from 'styled-components';
-import OptionsPanel from './OptionsPanel';
-import { ConfigContext } from '../contexts/ConfigContext';
 
 const Container = styled.div`
     height: 100%;
@@ -14,18 +11,9 @@ const Container = styled.div`
 `;
 
 const PathfindingVisualizer = () => {
-    const ctx = useContext(ConfigContext);
-    const { config } = ctx;
-
     return (
         <Container className='appContainer'>
-            <OptionsPanel></OptionsPanel>
-            <Grid
-                cols={config.gridSize.cols}
-                rows={config.gridSize.rows}
-                sourceNode={config.sourceNode}
-                targetNode={config.targetNode}
-            ></Grid>
+            <Grid></Grid>
         </Container>
     );
 };

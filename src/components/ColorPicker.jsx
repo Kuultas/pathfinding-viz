@@ -1,9 +1,7 @@
 import styled from 'styled-components';
-import { useState, useContext } from 'react';
-import { ConfigContext } from '../contexts/ConfigContext';
+import { useState } from 'react';
 
 const ColorsPanel = styled.div`
-    background-color: transparent;
     display: flex;
     align-content: center;
     justify-content: center;
@@ -19,6 +17,7 @@ const Color = styled.input.attrs((props) => ({
     height: 30px;
     border-radius: 50%;
     margin: 5px;
+    cursor: pointer;
 
     ::-webkit-color-swatch-wrapper {
         padding: 5px;
@@ -32,28 +31,30 @@ const Color = styled.input.attrs((props) => ({
 const SubmitColors = styled.button.attrs(() => ({
     type: 'submit',
 }))`
-    background-color: #333;
+    background-color: #4d4d4d;
     color: #fff;
     border: none;
     border-radius: 5px;
     padding: 10px;
+    cursor: pointer;
+
+    &:hover {
+        background-color: #555555;
+    }
 `;
 
-const ColorPicker = () => {
-    const ctx = useContext(ConfigContext);
-    const { config, setConfig } = ctx;
-
+const ColorPicker = ({ setColors }) => {
     const [currentColors, setCurrentColors] = useState({
-        visited: '#8181567f',
-        path: '#fad400ce',
-        start: '#004bd6',
-        end: '#ff1e00',
-        wall: '#00945b',
+        visited: '#8C8C8C',
+        path: '#FEB562',
+        start: '#2478FF',
+        end: '#FF4242',
+        wall: '#6EC3D8',
     });
 
     const handleSubmitColors = (e) => {
         e.preventDefault();
-        setConfig({ ...config, colors: currentColors });
+        setColors(currentColors);
     };
 
     return (
