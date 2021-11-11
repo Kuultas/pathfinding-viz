@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 
 const Main = styled.div`
@@ -79,13 +79,17 @@ const SubmitButton = styled.button`
     }
 `;
 
-const OptionsPanel = ({ setAlgorithm, setRows, setCols, setSpeed }) => {
-    const [maze, setMaze] = useState('recursive-division');
+const OptionsPanel = ({
+    setAlgorithm,
+    setMaze,
+    setRows,
+    setCols,
+    setSpeed,
+}) => {
     const [gridSize, setGridSize] = useState({ cols: 15, rows: 15 });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         setRows(gridSize.rows);
         setCols(gridSize.cols);
     };

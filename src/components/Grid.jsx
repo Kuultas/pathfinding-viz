@@ -16,15 +16,6 @@ const StyledGrid = styled.div`
     margin-top: 1vh;
 `;
 
-const TempUIButton = styled.button`
-    background-color: #3a3a3a;
-    border: none;
-    border-radius: 5px;
-    padding: 5px;
-    margin: 5px;
-    cursor: pointer;
-`;
-
 const Grid = () => {
     const [rows, setRows] = useState(isMobile ? 15 : 30);
     const [cols, setCols] = useState(isMobile ? 10 : 50);
@@ -296,6 +287,7 @@ const Grid = () => {
                 setRows={(rows) => setRows(rows)}
                 setCols={(cols) => setCols(cols)}
                 setAlgorithm={(algorithm) => setAlgorithm(algorithm)}
+                setMaze={(maze) => setMaze(maze)}
                 setSpeed={(speed) => setSpeed(speed)}
             ></OptionsPanel>
             <LegendPanel
