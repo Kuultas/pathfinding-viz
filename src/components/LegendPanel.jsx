@@ -21,6 +21,10 @@ const Button = styled.button`
     margin-left: 5px;
     cursor: pointer;
 
+    @media (max-width: 600px) {
+        margin: 5px;
+    }
+
     &:hover {
         background-color: #555555;
     }

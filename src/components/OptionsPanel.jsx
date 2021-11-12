@@ -9,6 +9,20 @@ const Main = styled.div`
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+
+    @media (max-width: 750px) {
+        flex-direction: column;
+    }
+`;
+
+const OptionWrapper = styled.div`
+    display: flex;
+    margin: 0 10px 0 10px;
+    flex: 1.5;
+
+    @media (max-width: 750px) {
+        margin: 5px;
+    }
 `;
 
 const PageTitle = styled.h1`
@@ -16,7 +30,7 @@ const PageTitle = styled.h1`
     color: #fff;
     margin-left: 10px;
     display: flex;
-    flex: 1;
+    flex: 2;
 `;
 
 const Subtitle = styled.h2`
@@ -28,29 +42,20 @@ const Subtitle = styled.h2`
     margin-right: 10px;
 `;
 
-const SizeFormContainer = styled.div`
-    display: flex;
-    flex: 1;
-`;
-
-const Algorithms = styled.div`
-    display: flex;
-    flex: 1;
-`;
-
-const Speed = styled.div`
-    display: flex;
-    flex: 1;
-`;
-
 const GridSizeForm = styled.form`
+    margin: 0 10px 0 10px;
     display: flex;
+`;
+
+const Panel = styled.div`
+    display: flex;
+    flex: 2;
 `;
 
 const DropdownOptions = styled.select`
     border-radius: 5px;
     border: none;
-    margin: 0;
+    margin: 0 5px 0 5px;
 
     > option {
         background-color: #333;
@@ -59,11 +64,12 @@ const DropdownOptions = styled.select`
 `;
 
 const NumberInput = styled.input`
+    height: 70%;
     background-color: #4d4d4d;
     border: none;
     border-radius: 5px;
     margin-left: 5px;
-    padding: 5px;
+    align-self: center;
 `;
 
 const SubmitButton = styled.button`
@@ -73,6 +79,7 @@ const SubmitButton = styled.button`
     cursor: pointer;
     margin: 5px;
     padding: 5px;
+    width: 100px;
 
     &:hover {
         background-color: #555555;
@@ -98,7 +105,7 @@ const OptionsPanel = ({
         <>
             <Main>
                 <PageTitle>pathfinding visualizer</PageTitle>
-                <SizeFormContainer>
+                <OptionWrapper>
                     <Subtitle>grid size:</Subtitle>
                     <GridSizeForm onSubmit={handleSubmit}>
                         <NumberInput
@@ -133,8 +140,8 @@ const OptionsPanel = ({
                         ></NumberInput>
                         <SubmitButton type='submit'>new grid</SubmitButton>
                     </GridSizeForm>
-                </SizeFormContainer>
-                <Algorithms>
+                </OptionWrapper>
+                <OptionWrapper>
                     <Subtitle>algorithms: </Subtitle>
                     <DropdownOptions
                         name='algorithm'
@@ -152,8 +159,8 @@ const OptionsPanel = ({
                             recursive-division
                         </option>
                     </DropdownOptions>
-                </Algorithms>
-                <Speed>
+                </OptionWrapper>
+                <OptionWrapper>
                     <Subtitle>speed: </Subtitle>
                     <DropdownOptions
                         name='speed'
@@ -164,7 +171,8 @@ const OptionsPanel = ({
                         <option value='2'>medium</option>
                         <option value='3'>slow</option>
                     </DropdownOptions>
-                </Speed>
+                </OptionWrapper>
+                <Panel></Panel>
             </Main>
         </>
     );
