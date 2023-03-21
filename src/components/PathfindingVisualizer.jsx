@@ -7,7 +7,7 @@ import LegendPanel from './LegendPanel';
 import OptionsPanel from './OptionsPanel';
 import { isMobile } from 'react-device-detect';
 
-const StyledGrid = styled.div`
+const Grid = styled.div`
     display: grid;
     width: 99vw;
     height: 88vh;
@@ -16,39 +16,75 @@ const StyledGrid = styled.div`
     margin-top: 1vh;
 `;
 
+const createNode = (col, row) => {
+    return {
+        col,
+        row,
+        isSource: false,
+        isTarget: false,
+        isWall: false,
+        isVisited: false,
+        isPath: false,
+        distance: Infinity,
+        previousNode: null,
+    };
+};
+
+const initializeGrid = (rows, cols) => {
+    const newGrid = [];
+    for (let row = 0; row < rows; row++) {
+        const currentRow = [];
+        for (let col = 0; col < cols; col++) {
+            currentRow.push(createNode(col, row));
+        }
+        newGrid.push(currentRow);
+    }
+    newGrid[1][1].isSource = true;
+    newGrid[rows - 2][cols - 2].isTarget = true;
+    return newGrid;
+};
+
 const PathfindingVisualizer = () => {
     const [rows, setRows] = useState(isMobile ? 15 : 30);
     const [cols, setCols] = useState(isMobile ? 10 : 50);
-    const [grid, setGrid] = useState([]);
+    const [grid, setGrid] = useState(() => initializeGrid(rows, cols));
     const [mouseIsPressed, setMouseIsPressed] = useState(false);
     const [sourceIsMoving, setSourceIsMoving] = useState(false);
     const [targetIsMoving, setTargetIsMoving] = useState(false);
     const [reset, setReset] = useState(false);
     const [hasAnimated, setHasAnimated] = useState(false);
     const [colors, setColors] = useState({
-        visited: '#8C8C8C',
-        path: '#FEB562',
-        start: '#2478FF',
-        end: '#FF4242',
-        wall: '#6EC3D8',
+        visited: "#8C8C8C",
+        path: "#FEB562",
+        start: "#2478FF",
+        end: "#FF4242",
+        wall: "#6EC3D8",
     });
-    const [algorithm, setAlgorithm] = useState('dijkstra');
-    const [maze, setMaze] = useState('recursive-division');
+    const [algorithm, setAlgorithm] = useState("dijkstra");
+    const [maze, setMaze] = useState("recursive-division");
     const [speed, setSpeed] = useState(1);
 
-    const resetToggle = () => {
-        setReset(!reset);
+    useEffect(() => {
+        setGrid(initializeGrid(rows, cols));
+    }, [rows, cols]);
+
+    useEffect(() => {
+        setReset(false);
         setHasAnimated(false);
+    }, [reset]);
+
+    const resetToggle = () => {
+        setReset(true);
     };
 
     const toggleWall = (col, row) => {
         if (grid[row][col].isSource || grid[row][col].isTarget) return;
-        const newGrid = grid.slice();
+        const newGrid = grid.map((row) => [...row]);
         newGrid[row][col].isWall = !newGrid[row][col].isWall;
         setGrid(newGrid);
     };
 
-    const getSourceNode = (grid) => {
+    const getSourceNode = () => {
         for (const row of grid) {
             for (const node of row) {
                 if (node.isSource) return node;
@@ -57,16 +93,13 @@ const PathfindingVisualizer = () => {
     };
 
     const clearSource = () => {
-        const newGrid = grid.slice();
-        newGrid.forEach((row) => {
-            row.forEach((node) => {
-                node.isSource = false;
-            });
-        });
+        const newGrid = grid.map((row) =>
+            row.map((node) => ({ ...node, isSource: false }))
+        );
         setGrid(newGrid);
     };
 
-    const getTargetNode = (grid) => {
+    const getTargetNode = () => {
         for (const row of grid) {
             for (const node of row) {
                 if (node.isTarget) return node;
@@ -75,62 +108,44 @@ const PathfindingVisualizer = () => {
     };
 
     const clearTarget = () => {
-        const newGrid = grid.slice();
-        newGrid.forEach((row) => {
-            row.forEach((node) => {
-                node.isTarget = false;
-            });
-        });
+        const newGrid = grid.map((row) =>
+            row.map((node) => ({ ...node, isTarget: false }))
+        );
         setGrid(newGrid);
     };
 
     const clearWalls = () => {
-        const newGrid = grid.slice();
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                newGrid[row][col].isWall = false;
-            }
-        }
+        const newGrid = grid.map((row) =>
+            row.map((node) => ({ ...node, isWall: false }))
+        );
         setGrid(newGrid);
     };
 
     const clearVisited = () => {
-        const newGrid = grid.slice();
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                newGrid[row][col].isVisited = false;
-            }
-        }
+        const newGrid = grid.map((row) =>
+            row.map((node) => ({ ...node, isVisited: false }))
+        );
         setGrid(newGrid);
     };
 
     const clearPath = () => {
-        const newGrid = grid.slice();
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                newGrid[row][col].isPath = false;
-            }
-        }
+        const newGrid = grid.map((row) =>
+            row.map((node) => ({ ...node, isPath: false }))
+        );
         setGrid(newGrid);
     };
 
     const clearDistance = () => {
-        const newGrid = grid.slice();
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                newGrid[row][col].distance = Infinity;
-            }
-        }
+        const newGrid = grid.map((row) =>
+            row.map((node) => ({ ...node, distance: Infinity }))
+        );
         setGrid(newGrid);
     };
 
     const clearPrevious = () => {
-        const newGrid = grid.slice();
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                newGrid[row][col].previousNode = null;
-            }
-        }
+        const newGrid = grid.map((row) =>
+            row.map((node) => ({ ...node, previousNode: null }))
+        );
         setGrid(newGrid);
     };
 
@@ -143,22 +158,19 @@ const PathfindingVisualizer = () => {
 
     const handleMouseEnter = (col, row) => {
         if (sourceIsMoving) {
-            const newGrid = grid.slice();
+            const newGrid = grid.map((row) => [...row]);
             clearSource();
             newGrid[row][col].isSource = true;
             setGrid(newGrid);
-
-            if (hasAnimated) visualizeDijkstra(grid, getSourceNode(grid));
+            if (hasAnimated) visualizeDijkstra(grid, getSourceNode());
         }
         if (targetIsMoving) {
-            const newGrid = grid.slice();
+            const newGrid = grid.map((row) => [...row]);
             clearTarget();
             newGrid[row][col].isTarget = true;
             setGrid(newGrid);
-
-            if (hasAnimated) visualizeDijkstra(grid, getSourceNode(grid));
+            if (hasAnimated) visualizeDijkstra(grid, getSourceNode());
         }
-
         if (mouseIsPressed) toggleWall(col, row);
     };
 
@@ -168,7 +180,7 @@ const PathfindingVisualizer = () => {
         setTargetIsMoving(false);
     };
 
-    const animateDijkstra = (grid, sourceNode) => {
+    const animateDijkstra = async (sourceNode) => {
         setHasAnimated(true);
 
         clearDistance();
@@ -176,11 +188,11 @@ const PathfindingVisualizer = () => {
         clearPath();
         clearVisited();
 
-        getSourceNode(grid).isWall = false;
-        getTargetNode(grid).isWall = false;
+        getSourceNode().isWall = false;
+        getTargetNode().isWall = false;
 
-        const visitedNodes = dijkstra(grid, sourceNode);
-        const nodesInShortestPathOrder = getPath(getTargetNode(grid));
+        const visitedNodes = await dijkstra(grid, sourceNode);
+        const nodesInShortestPathOrder = getPath(getTargetNode());
 
         clearVisited();
 
@@ -192,7 +204,7 @@ const PathfindingVisualizer = () => {
                 return;
             }
             setTimeout(() => {
-                const newGrid = grid.slice();
+                const newGrid = grid.map((row) => [...row]);
                 const node = visitedNodes[i];
                 node.isVisited = true;
                 setGrid(newGrid);
@@ -200,38 +212,41 @@ const PathfindingVisualizer = () => {
         }
     };
 
-    const visualizeDijkstra = (grid, sourceNode) => {
+    const visualizeDijkstra = (sourceNode) => {
         clearDistance();
         clearPrevious();
         clearPath();
         clearVisited();
 
         const visitedNodes = dijkstra(grid, sourceNode);
-        const nodesInShortestPathOrder = getPath(getTargetNode(grid));
+        const nodesInShortestPathOrder = getPath(getTargetNode());
 
         clearVisited();
 
-        for (const node of visitedNodes) {
-            node.isVisited = true;
-        }
+        const newGrid = grid.map((row) => [...row]);
 
-        for (const node of nodesInShortestPathOrder) {
-            node.isPath = true;
-        }
+        visitedNodes.forEach((node) => {
+            newGrid[node.row][node.col].isVisited = true;
+        });
+
+        nodesInShortestPathOrder.forEach((node) => {
+            newGrid[node.row][node.col].isPath = true;
+        });
+
+        setGrid(newGrid);
     };
 
-    const animatePath = (pathNodes) => {
+    const animatePath = async (pathNodes) => {
         for (let i = 0; i < pathNodes.length; i++) {
-            setTimeout(() => {
-                const newGrid = grid.slice();
-                const node = pathNodes[i];
-                node.isPath = true;
-                setGrid(newGrid);
-            });
+            await new Promise((resolve) => setTimeout(resolve, 20 * speed));
+            const newGrid = grid.map((row) => [...row]);
+            const node = pathNodes[i];
+            node.isPath = true;
+            setGrid(newGrid);
         }
     };
 
-    const animateRecursiveMaze = (grid) => {
+    const animateRecursiveMaze = async () => {
         let wallNodes = recursiveMaze(grid, 0, grid[0].length, 0, grid.length);
 
         clearVisited();
@@ -239,12 +254,11 @@ const PathfindingVisualizer = () => {
         clearWalls();
 
         for (let i = 0; i < wallNodes.length; i++) {
-            setTimeout(() => {
-                const newGrid = grid.slice();
-                const node = wallNodes[i];
-                node.isWall = true;
-                setGrid(newGrid);
-            }, 15 * i * speed);
+            await new Promise((resolve) => setTimeout(resolve, 15 * speed));
+            const newGrid = grid.map((row) => [...row]);
+            const node = wallNodes[i];
+            node.isWall = true;
+            setGrid(newGrid);
         }
     };
 
@@ -279,28 +293,26 @@ const PathfindingVisualizer = () => {
         };
 
         setGrid(initializeGrid());
-    }, [cols, rows, reset]);
+    }, [cols, rows]);
 
     return (
         <>
             <OptionsPanel
-                setRows={(rows) => setRows(rows)}
-                setCols={(cols) => setCols(cols)}
-                setAlgorithm={(algorithm) => setAlgorithm(algorithm)}
-                setMaze={(maze) => setMaze(maze)}
-                setSpeed={(speed) => setSpeed(speed)}
+                setRows={setRows}
+                setCols={setCols}
+                setAlgorithm={setAlgorithm}
+                setMaze={setMaze}
+                setSpeed={setSpeed}
             ></OptionsPanel>
             <LegendPanel
-                animateDijkstra={() =>
-                    animateDijkstra(grid, getSourceNode(grid))
-                }
-                animateRecursiveMaze={() => animateRecursiveMaze(grid)}
-                reset={() => resetToggle()}
-                setColors={(colors) => setColors(colors)}
+                animateDijkstra={() => animateDijkstra(getSourceNode())}
+                animateRecursiveMaze={animateRecursiveMaze}
+                reset={resetToggle}
+                setColors={setColors}
                 algorithm={algorithm}
                 maze={maze}
             ></LegendPanel>
-            <StyledGrid id='mainGrid' rows={rows} cols={cols}>
+            <StyledGrid id="mainGrid" rows={rows} cols={cols}>
                 {grid.map((row) => {
                     return row.map((node) => (
                         <Node
@@ -330,3 +342,4 @@ const PathfindingVisualizer = () => {
 };
 
 export default PathfindingVisualizer;
+                    
