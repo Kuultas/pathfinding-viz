@@ -1,0 +1,17 @@
+@import 'parts/styles';
+
+.submit-button {
+    background-color: "#4d4d4d";
+    color: "#ffffff";
+    border: none;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.grid {
+    display: grid;
+    width: 99vw;
+    height: 88vh;
+    margin-top: 1vh;
+}

@@ -1,48 +1,26 @@
-import { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import Node from './Node';
-import { dijkstra, getPath } from '../algorithms/dijkstra';
-import { recursiveMaze } from '../algorithms/recursiveMaze';
-import LegendPanel from './LegendPanel';
-import OptionsPanel from './OptionsPanel';
-import { isMobile } from 'react-device-detect';
+import { useState, useEffect } from "react";
+import Node from "./components/Node";
+import { dijkstra, getPath } from "./algorithms/dijkstra";
+import { recursiveMaze } from "./algorithms/recursiveMaze";
+import LegendPanel from "./components/LegendPanel";
+import OptionsPanel from "./components/OptionsPanel";
+import { isMobile } from "react-device-detect";
+import {
+    createNode,
+    initializeGrid,
+    toggleWall,
+    clearSource,
+    clearTarget,
+    clearWalls,
+    clearVisited,
+    clearPath,
+    clearDistance,
+    clearPrevious,
+    getSourceNode,
+    getTargetNode,
+} from "./utils/utils.js";
 
-const Grid = styled.div`
-    display: grid;
-    width: 99vw;
-    height: 88vh;
-    grid-template-columns: repeat(${(props) => props.cols}, 1fr);
-    grid-template-rows: repeat(${(props) => props.rows}, 1fr);
-    margin-top: 1vh;
-`;
-
-const createNode = (col, row) => {
-    return {
-        col,
-        row,
-        isSource: false,
-        isTarget: false,
-        isWall: false,
-        isVisited: false,
-        isPath: false,
-        distance: Infinity,
-        previousNode: null,
-    };
-};
-
-const initializeGrid = (rows, cols) => {
-    const newGrid = [];
-    for (let row = 0; row < rows; row++) {
-        const currentRow = [];
-        for (let col = 0; col < cols; col++) {
-            currentRow.push(createNode(col, row));
-        }
-        newGrid.push(currentRow);
-    }
-    newGrid[1][1].isSource = true;
-    newGrid[rows - 2][cols - 2].isTarget = true;
-    return newGrid;
-};
+import "./styles/pathfinding-visualizer.scss";
 
 const PathfindingVisualizer = () => {
     const [rows, setRows] = useState(isMobile ? 15 : 30);
@@ -51,8 +29,6 @@ const PathfindingVisualizer = () => {
     const [mouseIsPressed, setMouseIsPressed] = useState(false);
     const [sourceIsMoving, setSourceIsMoving] = useState(false);
     const [targetIsMoving, setTargetIsMoving] = useState(false);
-    const [reset, setReset] = useState(false);
-    const [hasAnimated, setHasAnimated] = useState(false);
     const [colors, setColors] = useState({
         visited: "#8C8C8C",
         path: "#FEB562",
@@ -67,87 +43,6 @@ const PathfindingVisualizer = () => {
     useEffect(() => {
         setGrid(initializeGrid(rows, cols));
     }, [rows, cols]);
-
-    useEffect(() => {
-        setReset(false);
-        setHasAnimated(false);
-    }, [reset]);
-
-    const resetToggle = () => {
-        setReset(true);
-    };
-
-    const toggleWall = (col, row) => {
-        if (grid[row][col].isSource || grid[row][col].isTarget) return;
-        const newGrid = grid.map((row) => [...row]);
-        newGrid[row][col].isWall = !newGrid[row][col].isWall;
-        setGrid(newGrid);
-    };
-
-    const getSourceNode = () => {
-        for (const row of grid) {
-            for (const node of row) {
-                if (node.isSource) return node;
-            }
-        }
-    };
-
-    const clearSource = () => {
-        const newGrid = grid.map((row) =>
-            row.map((node) => ({ ...node, isSource: false }))
-        );
-        setGrid(newGrid);
-    };
-
-    const getTargetNode = () => {
-        for (const row of grid) {
-            for (const node of row) {
-                if (node.isTarget) return node;
-            }
-        }
-    };
-
-    const clearTarget = () => {
-        const newGrid = grid.map((row) =>
-            row.map((node) => ({ ...node, isTarget: false }))
-        );
-        setGrid(newGrid);
-    };
-
-    const clearWalls = () => {
-        const newGrid = grid.map((row) =>
-            row.map((node) => ({ ...node, isWall: false }))
-        );
-        setGrid(newGrid);
-    };
-
-    const clearVisited = () => {
-        const newGrid = grid.map((row) =>
-            row.map((node) => ({ ...node, isVisited: false }))
-        );
-        setGrid(newGrid);
-    };
-
-    const clearPath = () => {
-        const newGrid = grid.map((row) =>
-            row.map((node) => ({ ...node, isPath: false }))
-        );
-        setGrid(newGrid);
-    };
-
-    const clearDistance = () => {
-        const newGrid = grid.map((row) =>
-            row.map((node) => ({ ...node, distance: Infinity }))
-        );
-        setGrid(newGrid);
-    };
-
-    const clearPrevious = () => {
-        const newGrid = grid.map((row) =>
-            row.map((node) => ({ ...node, previousNode: null }))
-        );
-        setGrid(newGrid);
-    };
 
     const handleMouseDown = (col, row) => {
         if (grid[row][col].isSource) setSourceIsMoving(true);
@@ -181,8 +76,6 @@ const PathfindingVisualizer = () => {
     };
 
     const animateDijkstra = async (sourceNode) => {
-        setHasAnimated(true);
-
         clearDistance();
         clearPrevious();
         clearPath();
@@ -307,12 +200,18 @@ const PathfindingVisualizer = () => {
             <LegendPanel
                 animateDijkstra={() => animateDijkstra(getSourceNode())}
                 animateRecursiveMaze={animateRecursiveMaze}
-                reset={resetToggle}
                 setColors={setColors}
                 algorithm={algorithm}
                 maze={maze}
             ></LegendPanel>
-            <StyledGrid id="mainGrid" rows={rows} cols={cols}>
+            <div
+                id="mainGrid"
+                className="grid"
+                style={{
+                    gridTemplateColumns: `repeat(${cols}, 1fr)`,
+                    gridTemplateRows: `repeat(${rows}, 1fr)`,
+                }}
+            >
                 {grid.map((row) => {
                     return row.map((node) => (
                         <Node
@@ -336,10 +235,9 @@ const PathfindingVisualizer = () => {
                         ></Node>
                     ));
                 })}
-            </StyledGrid>
+            </div>
         </>
     );
 };
 
 export default PathfindingVisualizer;
-                    

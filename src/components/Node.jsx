@@ -1,33 +1,4 @@
-import styled from 'styled-components';
-
-const Cell = styled.div.attrs((props) => ({
-    style: {
-        backgroundColor:
-            props.colors[
-                props.isStart
-                    ? 'start'
-                    : props.isEnd
-                    ? 'end'
-                    : props.isWall
-                    ? 'wall'
-                    : props.isPath
-                    ? 'path'
-                    : props.isVisited
-                    ? 'visited'
-                    : 'empty'
-            ],
-    },
-}))`
-    color: #ffffff;
-    border: 1px solid #303030;
-    font-size: calc(max(5px, 0.7vh));
-    cursor: pointer;
-    user-select: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: 0.5s;
-`;
+import "../styles/pathfinding-visualizer.scss";
 
 const Node = ({
     col,
@@ -42,31 +13,51 @@ const Node = ({
     onMouseEnter,
     onMouseUp,
 }) => {
+    const cellClasses = [
+        "cell",
+        isSource ? "start" : "",
+        isTarget ? "end" : "",
+        isWall ? "wall" : "",
+        isPath ? "path" : "",
+        isVisited ? "visited" : "",
+    ].join(" ");
+
     return (
-        <Cell
+        <div
             id={`${col}-${row}`}
-            colors={colors}
-            isStart={isSource}
-            isEnd={isTarget}
-            isWall={isWall}
-            isVisited={isVisited}
-            isPath={isPath}
+            className={cellClasses}
+            style={{
+                backgroundColor:
+                    colors[
+                        isSource
+                            ? "start"
+                            : isTarget
+                            ? "end"
+                            : isWall
+                            ? "wall"
+                            : isPath
+                            ? "path"
+                            : isVisited
+                            ? "visited"
+                            : "empty"
+                    ],
+            }}
             onMouseDown={() => onMouseDown(col, row)}
             onMouseEnter={() => onMouseEnter(col, row)}
             onMouseUp={() => onMouseUp()}
         >
             {isSource
-                ? 'S'
+                ? "S"
                 : isTarget
-                ? 'T'
+                ? "T"
                 : isWall
-                ? 'W'
+                ? "W"
                 : isPath
-                ? 'P'
+                ? "P"
                 : isVisited
-                ? 'V'
-                : ''}
-        </Cell>
+                ? "V"
+                : ""}
+        </div>
     );
 };
 

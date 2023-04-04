@@ -1,0 +1,42 @@
+.cell {
+    color: #ffffff;
+    border: 1px solid #303030;
+    font-size: calc(max(5px, 0.7vh));
+    cursor: pointer;
+    user-select: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.5s;
+  
+    &.start {
+      /* define styles for the start node */
+      border-color: #00ff00;
+    }
+  
+    &.end {
+      /* define styles for the end node */
+      border-color: #ff0000;
+    }
+  
+    &.wall {
+      /* define styles for wall nodes */
+      background-color: #303030;
+    }
+  
+    &.path {
+      /* define styles for path nodes */
+      background-color: #ffff00;
+    }
+  
+    &.visited {
+      /* define styles for visited nodes */
+      background-color: #00ffff;
+    } 
+  
+    &.empty {
+      /* define styles for empty nodes */
+      background-color: #ffffff;
+    }
+  }
+  
